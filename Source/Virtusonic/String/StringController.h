@@ -2,24 +2,25 @@
 
 #pragma once
 
-#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
 #include "StringController.generated.h"
 
-UCLASS()
-class VIRTUSONIC_API AStringController : public AActor
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class VIRTUSONIC_API UStringController : public UActorComponent
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AStringController();
 
-	// Called when the game starts or when spawned
+public:	
+	// Sets default values for this component's properties
+	UStringController();
+
+	// Called when the game starts
 	virtual void BeginPlay() override;
 	
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	
+		
 	
 };

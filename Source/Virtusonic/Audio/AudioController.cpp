@@ -4,25 +4,33 @@
 #include "AudioController.h"
 
 
-// Sets default values
-AAudioController::AAudioController()
+// Sets default values for this component's properties
+UAudioController::UAudioController()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	bWantsBeginPlay = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void AAudioController::BeginPlay()
+// Called when the game starts
+void UAudioController::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void AAudioController::Tick( float DeltaTime )
+int32 UAudioController::GetAudioSourceCount()
 {
-	Super::Tick( DeltaTime );
-
+	return _audioSources.Num();
 }
+
+AAudioSource* UAudioController::GetAudioSource(int32 index)
+{
+	return _audioSources[index];
+}
+
+
+void UAudioController::AddAudioSource(AAudioSource* audioSource)
+{
+	_audioSources.Add(audioSource);
+}
+
 

@@ -2,24 +2,25 @@
 
 #pragma once
 
-#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
 #include "FretFingerController.generated.h"
 
-UCLASS()
-class VIRTUSONIC_API AFretFingerController : public AActor
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class VIRTUSONIC_API UFretFingerController : public UActorComponent
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AFretFingerController();
 
-	// Called when the game starts or when spawned
+public:	
+	// Sets default values for this component's properties
+	UFretFingerController();
+
+	// Called when the game starts
 	virtual void BeginPlay() override;
 	
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	
+		
 	
 };

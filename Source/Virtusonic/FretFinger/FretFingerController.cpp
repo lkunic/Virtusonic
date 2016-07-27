@@ -4,25 +4,33 @@
 #include "FretFingerController.h"
 
 
-// Sets default values
-AFretFingerController::AFretFingerController()
+// Sets default values for this component's properties
+UFretFingerController::UFretFingerController()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	bWantsBeginPlay = true;
+	PrimaryComponentTick.bCanEverTick = true;
 
+	// ...
 }
 
-// Called when the game starts or when spawned
-void AFretFingerController::BeginPlay()
+
+// Called when the game starts
+void UFretFingerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// ...
 	
 }
 
-// Called every frame
-void AFretFingerController::Tick( float DeltaTime )
-{
-	Super::Tick( DeltaTime );
 
+// Called every frame
+void UFretFingerController::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+{
+	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+
+	// ...
 }
 

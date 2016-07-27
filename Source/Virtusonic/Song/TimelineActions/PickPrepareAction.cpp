@@ -3,14 +3,6 @@
 #include "Virtusonic.h"
 #include "PickPrepareAction.h"
 
-UPickPrepareAction::UPickPrepareAction()
-{
-}
-
-UPickPrepareAction::~UPickPrepareAction()
-{
-}
-
 void UPickPrepareAction::Execute()
 {
 

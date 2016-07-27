@@ -4,3 +4,6 @@
 
 #include "Engine.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(VirtusonicLog, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(VirtusonicError, Log, All);
+

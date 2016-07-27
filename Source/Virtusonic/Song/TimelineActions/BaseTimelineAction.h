@@ -14,8 +14,7 @@ class VIRTUSONIC_API UBaseTimelineAction : public UObject
 	GENERATED_BODY()
 	
 public:
-	UBaseTimelineAction();
-	~UBaseTimelineAction();
-
 	virtual void Execute();
+
+	int32 Tick;
 };

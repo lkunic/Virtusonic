@@ -4,25 +4,25 @@
 #include "PickController.h"
 
 
-// Sets default values
-APickController::APickController()
+// Sets default values for this component's properties
+UPickController::UPickController()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	bWantsBeginPlay = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void APickController::BeginPlay()
+// Called when the game starts
+void UPickController::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void APickController::Tick( float DeltaTime )
+int32 UPickController::GetPickCount()
 {
-	Super::Tick( DeltaTime );
-
+	return _picks.Num();
 }
 
+void UPickController::AddPick(APick* pick)
+{
+	_picks.Add(pick);
+}

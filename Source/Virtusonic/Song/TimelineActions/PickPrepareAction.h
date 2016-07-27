@@ -14,8 +14,5 @@ class VIRTUSONIC_API UPickPrepareAction : public UBaseTimelineAction
 	GENERATED_BODY()
 
 public:
-	UPickPrepareAction();
-	~UPickPrepareAction();
-
 	virtual void Execute() override;
 };

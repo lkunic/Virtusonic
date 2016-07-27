@@ -2,24 +2,30 @@
 
 #pragma once
 
-#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
+#include "Pick.h"
+
 #include "PickController.generated.h"
 
-UCLASS()
-class VIRTUSONIC_API APickController : public AActor
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class VIRTUSONIC_API UPickController : public UActorComponent
 {
 	GENERATED_BODY()
-	
+
 public:	
-	// Sets default values for this actor's properties
-	APickController();
+	// Sets default values for this component's properties
+	UPickController();
 
-	// Called when the game starts or when spawned
+	// Called when the game starts
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
 
-	
-	
+	int32 GetPickCount();
+
+	UFUNCTION(BlueprintCallable, Category = "Pick")
+	void AddPick(APick* pick);
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Pick")
+	TArray<APick*> _picks;
 };
