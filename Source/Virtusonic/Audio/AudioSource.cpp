@@ -9,24 +9,34 @@ AAudioSource::AAudioSource()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	// Add an audio component to the actor
 	_audioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioSource"));
 	RootComponent = _audioComponent;
 }
 
-// Called when the game starts or when spawned
-void AAudioSource::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
+/*
+ * Plays the stored sound at the given frequency.
+ */
 void AAudioSource::PlayNote(double frequency)
 {
 	_audioComponent->PitchMultiplier = frequency / _soundFrequency;
-	_audioComponent->Play(0.15f);
+	_audioComponent->Play(0.30f);
 
-	UE_LOG(VirtusonicLog, Log, TEXT("Playing note: %.2f using sound %.2f"), frequency, _soundFrequency);
+	//UE_LOG(VirtusonicLog, Log, TEXT("Playing note: %.2f using sound %.2f"), frequency, _soundFrequency);
 }
 
+/*
+ * Stops playing the sound for this audio source.
+ */
+void AAudioSource::Stop()
+{
+	_audioComponent->Stop();
+	//UE_LOG(VirtusonicLog, Log, TEXT("Stopping note"));
+}
+
+/*
+ * Set the sound and the sound base frequency.
+ */
 void AAudioSource::SetSound(USoundCue* sound, float soundFrequency)
 {
 	_audioComponent->Sound = sound;

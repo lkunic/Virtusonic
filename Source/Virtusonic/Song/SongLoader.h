@@ -26,7 +26,7 @@ public:
 
 private:
 	static bool GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCount, int32* ticksPerQuarter);
-	static bool GetTrackContent(TArray<uint8> sar, int32* index , TrackEvents* trackEvents);
+	static bool GetTrackContent(TArray<uint8> sar, int32* index , TrackEvents* trackEvents, int32 ticksPerQuarter);
 	static bool ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* eventData, int32* runningCommand, int32 absTicks);
 
 	static int32 GetVarLength(TArray<uint8> sar, int32* index);

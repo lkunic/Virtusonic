@@ -19,4 +19,8 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual FString Name() override;
+
+	virtual TArray<StringPosition*> GetPossibleStringPositions(int32 notePitch) override;
+	virtual FString GetPickAnimationPath() override;
+	virtual FString GetStringRoots() override;
 };

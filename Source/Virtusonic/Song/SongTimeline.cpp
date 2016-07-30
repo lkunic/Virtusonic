@@ -15,7 +15,7 @@ void USongTimeline::AddActions(TArray<UBaseTimelineAction*> actions)
 
 void USongTimeline::SortByTick()
 {
-	_actionTimeline.Sort(TimelineSortPredicate);
+	_actionTimeline.StableSort(TimelineSortPredicate);
 }
 
 TArray<UBaseTimelineAction*> USongTimeline::GetActionsAtTick(int32 tick)

@@ -76,25 +76,23 @@ TArray<FString> USong::TrackNames()
 void USong::GenerateTimeline(AInstrument* instrument)
 {
 	SongTrack track = GetTrack(instrument->Name());
+
+	instrument->SetSongInfo(_tempo, _ticksPerQuarter);
+
 	USongTimeline* timeline = NewObject<USongTimeline>();
-
-	for (int i = 0, n = track.notes.Num(); i < n; i++)
-	{
-		timeline->AddActions(instrument->GenerateActions(track.notes[i]));
-	}
-
+	timeline->AddActions(instrument->GenerateActions(track.notes));
 	timeline->SortByTick();
 
-	_timelines.Add(instrument->Name(), timeline);
+	_timelines.Add(timeline);
 }
 
 TArray<UBaseTimelineAction*> USong::GetTimelineActions(int32 tick)
 {
 	TArray<UBaseTimelineAction*> actions;
 
-	for (auto it = _timelines.CreateIterator(); it; ++it)
+	for (int32 i = 0; i < _timelines.Num(); i++)
 	{
-		actions.Append(it->Value->GetActionsAtTick(tick));
+		actions.Append(_timelines[i]->GetActionsAtTick(tick));
 	}
 
 	return actions;

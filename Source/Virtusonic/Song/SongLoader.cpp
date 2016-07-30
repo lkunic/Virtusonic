@@ -47,7 +47,7 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 	{
 		TrackEvents trackEvents;
 
-		if (!GetTrackContent(sar, &index, &trackEvents))
+		if (!GetTrackContent(sar, &index, &trackEvents, ticksPerQuarter))
 		{
 			return false;
 		}
@@ -161,7 +161,7 @@ bool USongLoader::GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCou
 /*
 * Parses the track bytes and stores the track events in a vector of byte vectors.
 */
-bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* trackEvents)
+bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* trackEvents, int32 ticksPerQuarter)
 {
 	unsigned char buffer[5] = { 0 };
 
@@ -195,7 +195,7 @@ bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* 
 	trackEvents->Reserve(trackSize / 2);
 	trackEvents->Empty();
 
-	absTicks = 0;
+	absTicks = ticksPerQuarter * 4;
 
 	while (!((*index) >= sar.Num()))
 	{

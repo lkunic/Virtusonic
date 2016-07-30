@@ -8,6 +8,9 @@
 #include "AudioController.generated.h"
 
 
+/**
+ * Actor component for managing audio sources in an instrument.
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class VIRTUSONIC_API UAudioController : public UActorComponent
 {
@@ -17,12 +20,10 @@ public:
 	// Sets default values for this component's properties
 	UAudioController();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
 	int32 GetAudioSourceCount();
 	AAudioSource* GetAudioSource(int32 index);
 
+	// Blueprint function for adding audio sources at spawn
 	UFUNCTION(BlueprintCallable, Category = "Audio")
 	void AddAudioSource(AAudioSource* audioSource);
 

@@ -18,6 +18,7 @@ void ASongController::BeginPlay()
 	UE_LOG(VirtusonicLog, Log, TEXT("Loading song: %s.mid"), *_songName);
 	
 	_song = NewObject<USong>();
+	_song->AddToRoot();
 	USongLoader::ParseMidiFile(FPaths::GameContentDir().Append("\\Songs\\").Append(*_songName).Append(".mid"), _song);
 
 	currentTick = 0;

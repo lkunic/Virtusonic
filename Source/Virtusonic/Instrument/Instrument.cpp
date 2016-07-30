@@ -16,12 +16,18 @@ void AInstrument::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AInstrument::SetSongInfo(int32 tempo, int32 ticksPerQuarter)
+{
+	_tempo = tempo;
+	_ticksPerQuarter = ticksPerQuarter;
+}
+
 FString AInstrument::Name()
 {
 	return "Instrument";
 }
 
-TArray<UBaseTimelineAction*> AInstrument::GenerateActions(USongNote* note)
+TArray<UBaseTimelineAction*> AInstrument::GenerateActions(TArray<USongNote*> notes)
 {
 	return TArray<UBaseTimelineAction*>();
 }

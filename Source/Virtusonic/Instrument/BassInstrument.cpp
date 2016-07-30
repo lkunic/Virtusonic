@@ -22,3 +22,25 @@ FString ABassInstrument::Name()
 {
 	return "Bass";
 }
+
+TArray<StringPosition*> ABassInstrument::GetPossibleStringPositions(int32 notePitch)
+{
+	StringPosition position;
+	position.fret = FMath::RandHelper(24);
+	position.string = FMath::RandHelper(5);
+
+	TArray<StringPosition*> result;
+	result.Add(&position);
+	
+	return result;
+}
+
+FString ABassInstrument::GetPickAnimationPath()
+{
+	return "/Game/Models/Bass/Pick";
+}
+
+FString ABassInstrument::GetStringRoots()
+{
+	return "BEADG";
+}

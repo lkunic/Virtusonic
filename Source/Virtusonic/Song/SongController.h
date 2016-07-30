@@ -36,7 +36,9 @@ public:
 	FString _songName = "CMajor";
 
 private:
+	UPROPERTY()
 	USong* _song;
+
 	int32 currentTick;
 
 	TArray<AInstrument*> _instruments;

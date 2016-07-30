@@ -10,6 +10,7 @@ void UAudioStopAction::Init(AAudioSource* audioSource)
 
 void UAudioStopAction::Execute()
 {
+	_audioSource->Stop();
 }
 
 

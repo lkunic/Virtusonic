@@ -20,7 +20,9 @@ public:
 
 	virtual void Execute() override;
 	
-private:	
+private:
+	UPROPERTY()
 	AAudioSource* _audioSource;
+
 	double _frequency;
 };

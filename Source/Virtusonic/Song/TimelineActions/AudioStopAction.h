@@ -21,5 +21,6 @@ public:
 	virtual void Execute() override;
 
 private:
+	UPROPERTY()
 	AAudioSource* _audioSource;
 };

@@ -29,6 +29,8 @@ public:
 	TArray<UBaseTimelineAction*> GetActionsAtTick(int32 tick);
 
 private:
+	UPROPERTY()
 	TArray<UBaseTimelineAction*> _actionTimeline;
+
 	int32 _nextAction;
 };

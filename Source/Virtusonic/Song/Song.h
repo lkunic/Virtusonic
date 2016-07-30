@@ -48,5 +48,6 @@ private:
 	TMap<FString, SongTrack> _tracks;
 	TArray<USongNote*> _startedNotes;
 
-	TMap<FString, USongTimeline*> _timelines;
+	UPROPERTY()
+	TArray<USongTimeline*> _timelines;
 };

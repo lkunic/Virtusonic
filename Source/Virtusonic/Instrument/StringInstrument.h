@@ -23,8 +23,13 @@
 
 #include "StringInstrument.generated.h"
 
+typedef struct {
+	int32 string;
+	int32 fret;
+} StringPosition;
+
 /**
- * 
+ *  Base 'abstract' class for all string instruments (guitar, bass, ukulele...).
  */
 UCLASS()
 class VIRTUSONIC_API AStringInstrument : public AInstrument
@@ -32,17 +37,26 @@ class VIRTUSONIC_API AStringInstrument : public AInstrument
 	GENERATED_BODY()
 	
 public:
-	virtual TArray<UBaseTimelineAction*> GenerateActions(USongNote* note) override;
-
 	void SetControllerComponents(
 		UAudioController* audioController, UFretFingerController* fretFingerController,
 		UPickController* pickController, UStringController* stringController);
 
+	virtual TArray<UBaseTimelineAction*> GenerateActions(TArray<USongNote*> notes) override;
+
+	StringPosition GetStringPositionForNote(USongNote* note);
+
+	virtual TArray<StringPosition*> GetPossibleStringPositions(int32 notePitch);
+	virtual FString GetPickAnimationPath();
+	virtual FString GetStringRoots();
+
 private:
-	void GenerateAudioActions(TArray<UBaseTimelineAction*>* actions, USongNote* note);
-	void GenerateFretFingerActions(TArray<UBaseTimelineAction*>* actions, USongNote* note);
-	void GeneratePickActions(TArray<UBaseTimelineAction*>* actions, USongNote* note);
-	void GenerateStringActions(TArray<UBaseTimelineAction*>* actions, USongNote* note);
+	void InitPicks();
+	void ReturnPickToRest(TArray<UBaseTimelineAction*>* actions, APick* pick);
+
+	void GenerateAudioActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void GenerateFretFingerActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void GeneratePickActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void GenerateStringActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
 
 	UAudioController* _audioController;
 	UFretFingerController* _fretFingerController;

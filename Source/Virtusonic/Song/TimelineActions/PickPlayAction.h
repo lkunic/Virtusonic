@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Song/TimelineActions/BaseTimelineAction.h"
+#include "Pick/Pick.h"
+
 #include "PickPlayAction.generated.h"
 
 /**
@@ -13,7 +15,17 @@ class VIRTUSONIC_API UPickPlayAction : public UBaseTimelineAction
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	void Init(APick* pick, TCHAR stringRoot);
+
+	float GetAnimationLength();
+
+	virtual void Execute() override;
+
+private:
+	UPROPERTY()
+	APick* _pick;
+
+	UPROPERTY()
+	UAnimSequence* _animation;
 };

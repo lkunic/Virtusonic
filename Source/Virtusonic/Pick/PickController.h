@@ -17,10 +17,8 @@ public:
 	// Sets default values for this component's properties
 	UPickController();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
 	int32 GetPickCount();
+	APick* GetPick(int32 index);
 
 	UFUNCTION(BlueprintCallable, Category = "Pick")
 	void AddPick(APick* pick);

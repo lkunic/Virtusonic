@@ -7,19 +7,18 @@
 // Sets default values for this component's properties
 UPickController::UPickController()
 {
-	bWantsBeginPlay = true;
+	bWantsBeginPlay = false;
 	PrimaryComponentTick.bCanEverTick = false;
-}
-
-// Called when the game starts
-void UPickController::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 int32 UPickController::GetPickCount()
 {
 	return _picks.Num();
+}
+
+APick* UPickController::GetPick(int32 index)
+{
+	return _picks[index];
 }
 
 void UPickController::AddPick(APick* pick)
