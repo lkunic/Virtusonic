@@ -17,13 +17,19 @@ void ASongController::BeginPlay()
 
 	UE_LOG(VirtusonicLog, Log, TEXT("Loading song: %s.mid"), *_songName);
 	
+	// Loads the MIDI file containing the song from the content folder
 	_song = NewObject<USong>();
 	_song->AddToRoot();
 	USongLoader::ParseMidiFile(FPaths::GameContentDir().Append("\\Songs\\").Append(*_songName).Append(".mid"), _song);
 
+	// Initializes the tick counter
 	currentTick = 0;
 }
 
+/*
+ * The event function which gets periodically called by the timer for each tick.
+ * Goes through the instrument timelines and executes all actions at the current tick.
+ */
 void ASongController::SongTick()
 {
 	TArray<UBaseTimelineAction*> actions = _song->GetTimelineActions(currentTick);
@@ -39,6 +45,9 @@ void ASongController::SongTick()
 	currentTick++;
 }
 
+/*
+ * Generates the timelines for all tracks/instruments.
+ */
 void ASongController::GenerateTimelines()
 {
 	TArray<FString> trackNames = _song->TrackNames();
@@ -53,11 +62,17 @@ void ASongController::GenerateTimelines()
 	}
 }
 
+/*
+ * Calculates the time delay in seconds between consecutive ticks.
+ */
 float ASongController::GetTimePerTick()
 {
 	return 60.0f / (_song->GetTempo() * _song->GetTicksPerQuarter());
 }
 
+/*
+ * Sets the available instruments.
+ */
 void ASongController::SetInstruments(TArray<AInstrument*> instruments)
 {
 	_instruments = instruments;

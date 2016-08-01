@@ -20,18 +20,23 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// This function is periodically called by the blueprint timer
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void SongTick();
 
+	// Generates the timelines for the list of available isntruments
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void GenerateTimelines();
 
+	// Calculates the delay between consecutive ticks
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	float GetTimePerTick();
 
+	// Sets the list of available isntruments
 	UFUNCTION(BlueprintCallable, Category = "Song")
 	void SetInstruments(TArray<AInstrument*> instruments);
 
+	// The song name (used for loading the song file)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
 	FString _songName = "CMajor";
 

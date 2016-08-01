@@ -3,6 +3,9 @@
 #include "Virtusonic.h"
 #include "SongLoader.h"
 
+/*
+ * Parses the given midi file and stores the data into the given song object.
+ */
 bool USongLoader::ParseMidiFile(FString filename, USong* song)
 {
 	TArray<uint8> sar;

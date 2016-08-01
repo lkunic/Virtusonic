@@ -6,7 +6,7 @@
 #include "BaseTimelineAction.generated.h"
 
 /**
- * 
+ * 'Abstract' parent class for the timeline actions.
  */
 UCLASS()
 class VIRTUSONIC_API UBaseTimelineAction : public UObject

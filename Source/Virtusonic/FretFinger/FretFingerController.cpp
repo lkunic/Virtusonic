@@ -7,30 +7,31 @@
 // Sets default values for this component's properties
 UFretFingerController::UFretFingerController()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	bWantsBeginPlay = true;
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	bWantsBeginPlay = false;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
-void UFretFingerController::BeginPlay()
+/*
+* Returns the number of fret fingers.
+*/
+int32 UFretFingerController::GetFretFingerCount()
 {
-	Super::BeginPlay();
-
-	// ...
-	
+	return _fretFingers.Num();
 }
 
-
-// Called every frame
-void UFretFingerController::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+/*
+* Returns the fret finger with the given index.
+*/
+AFretFinger* UFretFingerController::GetFretFinger(int32 index)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	return _fretFingers[index];
+}
 
-	// ...
+/*
+* Blueprint function for adding a fret finger to this controller.
+*/
+void UFretFingerController::AddFretFinger(AFretFinger* fretFinger)
+{
+	_fretFingers.Add(fretFinger);
 }
 

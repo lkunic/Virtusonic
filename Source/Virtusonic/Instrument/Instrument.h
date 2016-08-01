@@ -17,14 +17,11 @@ class VIRTUSONIC_API AInstrument : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AInstrument();
-
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	void SetSongInfo(int32 tempo, int32 ticksPerQuarter);
 	
+	// The instrument name, used for mapping to MIDI tracks
 	virtual FString Name();
 	virtual TArray<UBaseTimelineAction*> GenerateActions(TArray<USongNote*> notes);
 

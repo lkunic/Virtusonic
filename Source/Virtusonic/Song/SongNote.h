@@ -18,17 +18,18 @@ class VIRTUSONIC_API USongNote : public UObject
 public:
 	void Init(int32 startTick, int32 endTick, int32 pitch, int32 velocity);
 
+	// Getters and setters
 	int32 GetStartTick();
 	int32 GetEndTick();
-
+	void SetEndTick(int32 endTick);
 	int32 GetPitch();
 	int32 GetVelocity();
 	double GetFrequency();
 
-	void SetEndTick(int32 endTick);
+	// Needs to be a public member because it is used in the sorting predicate
+	int32 StartTick;
 
 private:
-	int32 _startTick;
 	int32 _endTick;
 	int32 _pitch;
 	int32 _velocity;

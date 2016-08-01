@@ -10,6 +10,7 @@ void ABassInstrument::BeginPlay()
 
 	UE_LOG(VirtusonicLog, Log, TEXT("Added Bass instrument"));
 
+	// Provide the references to the parent StringInstrument class which contains the implementation for playing string instruments
 	UAudioController* audioController = (UAudioController*)GetComponentByClass(UAudioController::StaticClass());
 	UFretFingerController* fretFingerController = (UFretFingerController*)GetComponentByClass(UFretFingerController::StaticClass());
 	UPickController* pickController = (UPickController*)GetComponentByClass(UPickController::StaticClass());
@@ -23,8 +24,12 @@ FString ABassInstrument::Name()
 	return "Bass";
 }
 
+/*
+ * Returns a list of possible string/fret positions for the given note.
+ */
 TArray<StringPosition*> ABassInstrument::GetPossibleStringPositions(int32 notePitch)
 {
+	// TODO for now it is just randomized, real algorithm needs to be implemented
 	StringPosition position;
 	position.fret = FMath::RandHelper(24);
 	position.string = FMath::RandHelper(5);
@@ -35,11 +40,17 @@ TArray<StringPosition*> ABassInstrument::GetPossibleStringPositions(int32 notePi
 	return result;
 }
 
+/*
+ * Path to the pick animations.
+ */
 FString ABassInstrument::GetPickAnimationPath()
 {
 	return "/Game/Models/Bass/Pick";
 }
 
+/*
+ * String roots for the bass guitar, starting from the top (lowest pitch) string.
+ */
 FString ABassInstrument::GetStringRoots()
 {
 	return "BEADG";

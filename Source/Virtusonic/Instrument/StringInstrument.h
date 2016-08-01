@@ -37,25 +37,36 @@ class VIRTUSONIC_API AStringInstrument : public AInstrument
 	GENERATED_BODY()
 	
 public:
+
+	// Every string instrument should call this to set the controller references during BeginPlay
 	void SetControllerComponents(
 		UAudioController* audioController, UFretFingerController* fretFingerController,
 		UPickController* pickController, UStringController* stringController);
 
+	// Overriden function for generating timeline actions
 	virtual TArray<UBaseTimelineAction*> GenerateActions(TArray<USongNote*> notes) override;
 
-	StringPosition GetStringPositionForNote(USongNote* note);
-
+	// These functions should be implemented by derived string instrument classes
 	virtual TArray<StringPosition*> GetPossibleStringPositions(int32 notePitch);
 	virtual FString GetPickAnimationPath();
 	virtual FString GetStringRoots();
 
 private:
-	void InitPicks();
-	void ReturnPickToRest(TArray<UBaseTimelineAction*>* actions, APick* pick);
+	StringPosition GetStringPositionForNote(USongNote* note);
 
+	// Audio
 	void GenerateAudioActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+
+	// Fret fingers
 	void GenerateFretFingerActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+
+	// Picks
+	void InitPicks();
+	void CleanupPicks(TArray<UBaseTimelineAction*>* actions);
+	void ReturnPickToRest(TArray<UBaseTimelineAction*>* actions, APick* pick);
 	void GeneratePickActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+
+	// Strings
 	void GenerateStringActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
 
 	UAudioController* _audioController;

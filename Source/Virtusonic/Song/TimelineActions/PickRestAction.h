@@ -8,7 +8,7 @@
 #include "PickRestAction.generated.h"
 
 /**
- * 
+ * The song timeline action for returning the pick to the resting position.
  */
 UCLASS()
 class VIRTUSONIC_API UPickRestAction : public UBaseTimelineAction
@@ -16,6 +16,7 @@ class VIRTUSONIC_API UPickRestAction : public UBaseTimelineAction
 	GENERATED_BODY()
 	
 public:
+	// Initializes the action with the given pick reference and the current string position
 	void Init(APick* pick, TCHAR fromString);
 
 	float GetAnimationLength();

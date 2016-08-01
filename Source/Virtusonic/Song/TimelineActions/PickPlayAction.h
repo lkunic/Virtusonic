@@ -8,7 +8,7 @@
 #include "PickPlayAction.generated.h"
 
 /**
- * 
+ * The song timeline action for playing the actual picking animation.
  */
 UCLASS()
 class VIRTUSONIC_API UPickPlayAction : public UBaseTimelineAction
@@ -16,6 +16,7 @@ class VIRTUSONIC_API UPickPlayAction : public UBaseTimelineAction
 	GENERATED_BODY()
 	
 public:
+	// Initializes the action with the given pick reference and the current string position
 	void Init(APick* pick, TCHAR stringRoot);
 
 	float GetAnimationLength();

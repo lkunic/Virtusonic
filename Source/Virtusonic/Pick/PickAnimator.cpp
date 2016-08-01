@@ -3,7 +3,6 @@
 #include "Virtusonic.h"
 #include "PickAnimator.h"
 
-
 // Sets default values for this component's properties
 UPickAnimator::UPickAnimator()
 {
@@ -11,13 +10,18 @@ UPickAnimator::UPickAnimator()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+/*
+ * Loads all animation sequences at the given path.
+ */
 void UPickAnimator::LoadPickAnimations(FString assetPath)
 {
+	// Load the assets at the given path
 	auto objLib = UObjectLibrary::CreateLibrary(UAnimSequence::StaticClass(), false, true);
 	TArray<FAssetData> assets;
 	objLib->LoadAssetDataFromPath(*assetPath);
 	objLib->GetAssetDataList(assets);
 
+	// Process the assets as animation sequences and add them to the animation list
 	FAssetData asset;
 	FString assetName;
 	UAnimSequence* anim;
@@ -27,19 +31,25 @@ void UPickAnimator::LoadPickAnimations(FString assetPath)
 		asset = assets[i];
 		assetName = asset.AssetName.ToString();
 		anim = (UAnimSequence*)asset.GetAsset();
-		//anim->RateScale = 1.5f;
 		_pickAnimations.Add(assetName, anim);
 	}
 
+	// Load the helper object used for converting enum values to strings
 	_pickAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPickAnimations"), true);
 }
 
+/*
+ * Returns the animation sequence matching the given template.
+ */
 UAnimSequence* UPickAnimator::GetAnimationSequence(EPickAnimations anim, TCHAR X, TCHAR Y)
 {
 	FString animName = GetAnimationName(anim, X, Y);
 	return _pickAnimations[animName];
 }
 
+ /*
+  * Helper function for assembling the animation name using the given parameters
+  */
 FString UPickAnimator::GetAnimationName(EPickAnimations anim, TCHAR X, TCHAR Y)
 {
 	FString x = "", y = "";
@@ -50,5 +60,6 @@ FString UPickAnimator::GetAnimationName(EPickAnimations anim, TCHAR X, TCHAR Y)
 	return animName;
 }
 
+// Static member declarations
 TMap<FString, UAnimSequence*> UPickAnimator::_pickAnimations;
 UEnum* UPickAnimator::_pickAnimationNameEnum;

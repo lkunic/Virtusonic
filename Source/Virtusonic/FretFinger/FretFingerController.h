@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "FretFinger.h"
+
 #include "FretFingerController.generated.h"
 
 
@@ -15,12 +17,15 @@ public:
 	// Sets default values for this component's properties
 	UFretFingerController();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+	// Public getters
+	int32 GetFretFingerCount();
+	AFretFinger* GetFretFinger(int32 index);
 
-		
-	
+	// The fret finger references are added through the actor blueprint for the instrument
+	UFUNCTION(BlueprintCallable, Category = "FretFinger")
+	void AddFretFinger(AFretFinger* fretFinger);
+
+private:
+	UPROPERTY(EditAnywhere, Category = "FretFinger")
+	TArray<AFretFinger*> _fretFingers;
 };

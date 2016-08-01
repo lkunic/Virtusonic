@@ -8,7 +8,7 @@
 #include "AudioStopAction.generated.h"
 
 /**
- * 
+ * The song timeline action for stopping the sound which is currently playing on the audio source.
  */
 UCLASS()
 class VIRTUSONIC_API UAudioStopAction : public UBaseTimelineAction
@@ -16,6 +16,7 @@ class VIRTUSONIC_API UAudioStopAction : public UBaseTimelineAction
 	GENERATED_BODY()
 	
 public:
+	// Initializes the action by specifying the audio source
 	void Init(AAudioSource* audioSource);
 
 	virtual void Execute() override;

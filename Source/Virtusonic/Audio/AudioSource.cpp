@@ -21,8 +21,6 @@ void AAudioSource::PlayNote(double frequency)
 {
 	_audioComponent->PitchMultiplier = frequency / _soundFrequency;
 	_audioComponent->Play(0.30f);
-
-	//UE_LOG(VirtusonicLog, Log, TEXT("Playing note: %.2f using sound %.2f"), frequency, _soundFrequency);
 }
 
 /*
@@ -31,7 +29,6 @@ void AAudioSource::PlayNote(double frequency)
 void AAudioSource::Stop()
 {
 	_audioComponent->Stop();
-	//UE_LOG(VirtusonicLog, Log, TEXT("Stopping note"));
 }
 
 /*
