@@ -7,30 +7,30 @@
 // Sets default values for this component's properties
 UStringController::UStringController()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	bWantsBeginPlay = true;
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	bWantsBeginPlay = false;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
-void UStringController::BeginPlay()
+/*
+* Returns the number of strings.
+*/
+int32 UStringController::GetStringCount()
 {
-	Super::BeginPlay();
-
-	// ...
-	
+	return _strings.Num();
 }
 
-
-// Called every frame
-void UStringController::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+/*
+* Returns the string with the given index.
+*/
+AString* UStringController::GetString(int32 index)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-
-	// ...
+	return _strings[index];
 }
 
+/*
+* Blueprint function for adding a string to this controller.
+*/
+void UStringController::AddString(AString* string)
+{
+	_strings.Add(string);
+}

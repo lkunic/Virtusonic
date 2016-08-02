@@ -49,6 +49,14 @@ FString ABassInstrument::GetPickAnimationPath()
 }
 
 /*
+ * Path to the string animations.
+ */
+FString ABassInstrument::GetStringAnimationPath()
+{
+	return "/Game/Models/Bass/Strings";
+}
+
+/*
  * String roots for the bass guitar, starting from the top (lowest pitch) string.
  */
 FString ABassInstrument::GetStringRoots()

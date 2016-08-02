@@ -35,7 +35,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(TArray<USongNote
 	// Initialize the actors (generate the timelines, load animations...)
 	InitPicks();
 	//InitFretFingers();
-	//InitStrings();
+	InitStrings();
 
 	for (int i = 0; i < notes.Num(); i++)
 	{
@@ -65,7 +65,12 @@ TArray<StringPosition*> AStringInstrument::GetPossibleStringPositions(int32 note
 
 FString AStringInstrument::GetPickAnimationPath()
 {
-	return "Game/Models";
+	return "/Game/Models";
+}
+
+FString AStringInstrument::GetStringAnimationPath()
+{
+	return "/Game/Models";
 }
 
 FString AStringInstrument::GetStringRoots()
@@ -246,9 +251,22 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*>* action
 
 /// STRING FUNCTIONS ///
 
+/*
+* Initializes the strings, loads pick animations.
+*/
+void AStringInstrument::InitStrings()
+{
+	UStringAnimator::LoadStringAnimations(GetStringAnimationPath());
+}
+
 void AStringInstrument::GenerateStringActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition)
 {
+	TCHAR stringRoot = GetStringRoots()[stringPosition.string];
 
+	UStringPlayAction* playAction = NewObject<UStringPlayAction>();
+	playAction->Init(_stringController->GetString(stringPosition.string), stringRoot);
+	playAction->Tick = note->GetStartTick();
+	actions->Add(playAction);
 }
 
 

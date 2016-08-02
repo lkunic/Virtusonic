@@ -12,7 +12,7 @@ UPickController::UPickController()
 }
 
 /*
- * Returns the number of picks.
+ * Returns the number of string.
  */
 int32 UPickController::GetPickCount()
 {
@@ -20,7 +20,7 @@ int32 UPickController::GetPickCount()
 }
 
 /*
- * Returns the pick with the given index.
+ * Returns the string with the given index.
  */
 APick* UPickController::GetPick(int32 index)
 {
@@ -28,7 +28,7 @@ APick* UPickController::GetPick(int32 index)
 }
 
 /*
- * Blueprint function for adding a pick to this controller.
+ * Blueprint function for adding a string to this controller.
  */
 void UPickController::AddPick(APick* pick)
 {

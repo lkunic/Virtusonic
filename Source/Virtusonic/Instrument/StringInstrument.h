@@ -18,6 +18,7 @@
 #include "Song/TimelineActions/PickPlayAction.h"
 #include "Song/TimelineActions/PickPrepareAction.h"
 #include "Song/TimelineActions/PickRestAction.h"
+#include "Song/TimelineActions/StringPlayAction.h"
 #include "Song/TimelineActions/StringPressAction.h"
 #include "Song/TimelineActions/StringReleaseAction.h"
 
@@ -49,6 +50,7 @@ public:
 	// These functions should be implemented by derived string instrument classes
 	virtual TArray<StringPosition*> GetPossibleStringPositions(int32 notePitch);
 	virtual FString GetPickAnimationPath();
+	virtual FString GetStringAnimationPath();
 	virtual FString GetStringRoots();
 
 private:
@@ -67,6 +69,7 @@ private:
 	void GeneratePickActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
 
 	// Strings
+	void InitStrings();
 	void GenerateStringActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
 
 	UAudioController* _audioController;

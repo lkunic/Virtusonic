@@ -7,22 +7,13 @@
 // Sets default values
 AString::AString()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	// Add a string animator component to the actor
+	_animator = CreateDefaultSubobject<UStringAnimator>(TEXT("StringAnimator"));
 }
 
-// Called when the game starts or when spawned
-void AString::BeginPlay()
+UStringAnimator* AString::GetAnimator()
 {
-	Super::BeginPlay();
-	
+	return _animator;
 }
-
-// Called every frame
-void AString::Tick( float DeltaTime )
-{
-	Super::Tick( DeltaTime );
-
-}
-

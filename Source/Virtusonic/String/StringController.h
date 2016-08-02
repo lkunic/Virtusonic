@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "String.h"
+
 #include "StringController.generated.h"
 
 
@@ -15,12 +17,15 @@ public:
 	// Sets default values for this component's properties
 	UStringController();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+	// Public getters
+	int32 GetStringCount();
+	AString* GetString(int32 index);
 
-		
-	
+	// The string references are added through the actor blueprint for the instrument
+	UFUNCTION(BlueprintCallable, Category = "String")
+	void AddString(AString* string);
+
+private:
+	UPROPERTY(EditAnywhere, Category = "String")
+	TArray<AString*> _strings;
 };
