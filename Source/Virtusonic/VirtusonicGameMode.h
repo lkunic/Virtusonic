@@ -12,8 +12,4 @@ UCLASS()
 class VIRTUSONIC_API AVirtusonicGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
-	
-	
-	
 };
