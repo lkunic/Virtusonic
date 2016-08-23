@@ -6,10 +6,10 @@
 /*
  * Initializes the action with the given pick reference and the current string position.
  */
-void UPickPlayAction::Init(APick* pick, TCHAR stringRoot)
+void UPickPlayAction::Init(APick *pick, TCHAR stringRoot)
 {
-	_pick = pick;
-	_animation = _pick->GetAnimator()->GetAnimationSequence(EPickAnimations::PickX, stringRoot);
+	mPick = pick;
+	mAnimation = mPick->GetAnimator()->GetAnimationSequence(EPickAnimations::PickX, stringRoot);
 }
 
 /*
@@ -17,7 +17,7 @@ void UPickPlayAction::Init(APick* pick, TCHAR stringRoot)
  */
 float UPickPlayAction::GetAnimationLength()
 {
-	return _animation->SequenceLength / _animation->RateScale;
+	return mAnimation->SequenceLength / mAnimation->RateScale;
 }
 
 /*
@@ -25,8 +25,8 @@ float UPickPlayAction::GetAnimationLength()
  */
 void UPickPlayAction::Execute()
 {
-	_pick->GetSkeletalMeshComponent()->Stop();
-	_pick->GetSkeletalMeshComponent()->PlayAnimation(_animation, false);
+	mPick->GetSkeletalMeshComponent()->Stop();
+	mPick->GetSkeletalMeshComponent()->PlayAnimation(mAnimation, false);
 	//UE_LOG(VirtusonicLog, Log, TEXT("Playing pick %s"), *(_pick->GetName()));
 }
 

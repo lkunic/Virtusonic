@@ -24,16 +24,13 @@ class VIRTUSONIC_API USongTimeline : public UObject
 	GENERATED_BODY()
 	
 public:
-	void Init();
 
-	void AddActions(TArray<UBaseTimelineAction*> actions);
+	void AddActions(const TArray<UBaseTimelineAction*> &actions);
 	void SortByTick();
 
 	TArray<UBaseTimelineAction*> GetActionsAtTick(int32 tick);
 
 private:
 	UPROPERTY()
-	TArray<UBaseTimelineAction*> _actionTimeline;
-
-	int32 _nextAction;
+	TArray<UBaseTimelineAction*> mActionTimeline;
 };

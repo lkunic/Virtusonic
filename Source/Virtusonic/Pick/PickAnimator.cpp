@@ -24,18 +24,18 @@ void UPickAnimator::LoadPickAnimations(FString assetPath)
 	// Process the assets as animation sequences and add them to the animation list
 	FAssetData asset;
 	FString assetName;
-	UAnimSequence* anim;
+	UAnimSequence *anim;
 
 	for (int32 i = 0; i < assets.Num(); i++)
 	{
 		asset = assets[i];
 		assetName = asset.AssetName.ToString();
 		anim = (UAnimSequence*)asset.GetAsset();
-		_pickAnimations.Add(assetName, anim);
+		mPickAnimations.Add(assetName, anim);
 	}
 
 	// Load the helper object used for converting enum values to strings
-	_pickAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPickAnimations"), true);
+	mPickAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPickAnimations"), true);
 }
 
 /*
@@ -44,7 +44,7 @@ void UPickAnimator::LoadPickAnimations(FString assetPath)
 UAnimSequence* UPickAnimator::GetAnimationSequence(EPickAnimations anim, TCHAR X, TCHAR Y)
 {
 	FString animName = GetAnimationName(anim, X, Y);
-	return _pickAnimations[animName];
+	return mPickAnimations[animName];
 }
 
  /*
@@ -53,7 +53,7 @@ UAnimSequence* UPickAnimator::GetAnimationSequence(EPickAnimations anim, TCHAR X
 FString UPickAnimator::GetAnimationName(EPickAnimations anim, TCHAR X, TCHAR Y)
 {
 	FString x = "", y = "";
-	FString animName = _pickAnimationNameEnum->GetEnumName((int32)anim);
+	FString animName = mPickAnimationNameEnum->GetEnumName((int32)anim);
 	animName = animName.Replace(TEXT("X"), *x.AppendChar(X), ESearchCase::CaseSensitive);
 	animName = animName.Replace(TEXT("Y"), *y.AppendChar(Y), ESearchCase::CaseSensitive);
 	
@@ -61,5 +61,5 @@ FString UPickAnimator::GetAnimationName(EPickAnimations anim, TCHAR X, TCHAR Y)
 }
 
 // Static member declarations
-TMap<FString, UAnimSequence*> UPickAnimator::_pickAnimations;
-UEnum* UPickAnimator::_pickAnimationNameEnum;
+TMap<FString, UAnimSequence*> UPickAnimator::mPickAnimations;
+UEnum *UPickAnimator::mPickAnimationNameEnum;

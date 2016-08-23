@@ -17,13 +17,13 @@ class VIRTUSONIC_API UAudioPlayAction : public UBaseTimelineAction
 
 public:
 	// Initializes the action by specifying the audio source and the modulation frequency
-	void Init(AAudioSource* audioSource, double frequency);
+	void Init(AAudioSource *audioSource, double frequency);
 
 	virtual void Execute() override;
 	
 private:
 	UPROPERTY()
-	AAudioSource* _audioSource;
+	AAudioSource *mAudioSource;
 
-	double _frequency;
+	double mFrequency;
 };

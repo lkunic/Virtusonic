@@ -25,18 +25,18 @@ void UStringAnimator::LoadStringAnimations(FString assetPath)
 	// Process the assets as animation sequences and add them to the animation list
 	FAssetData asset;
 	FString assetName;
-	UAnimSequence* anim;
+	UAnimSequence *anim;
 
 	for (int32 i = 0; i < assets.Num(); i++)
 	{
 		asset = assets[i];
 		assetName = asset.AssetName.ToString();
 		anim = (UAnimSequence*)asset.GetAsset();
-		_stringAnimations.Add(assetName, anim);
+		mStringAnimations.Add(assetName, anim);
 	}
 
 	// Load the helper object used for converting enum values to strings
-	_stringAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EStringAnimations"), true);
+	mStringAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EStringAnimations"), true);
 }
 
 /*
@@ -45,7 +45,7 @@ void UStringAnimator::LoadStringAnimations(FString assetPath)
 UAnimSequence* UStringAnimator::GetAnimationSequence(EStringAnimations anim, TCHAR X)
 {
 	FString animName = GetAnimationName(anim, X);
-	return _stringAnimations[animName];
+	return mStringAnimations[animName];
 }
 
 /*
@@ -54,12 +54,12 @@ UAnimSequence* UStringAnimator::GetAnimationSequence(EStringAnimations anim, TCH
 FString UStringAnimator::GetAnimationName(EStringAnimations anim, TCHAR X)
 {
 	FString x = "", y = "";
-	FString animName = _stringAnimationNameEnum->GetEnumName((int32)anim);
+	FString animName = mStringAnimationNameEnum->GetEnumName((int32)anim);
 	animName = animName.Replace(TEXT("X"), *x.AppendChar(X), ESearchCase::CaseSensitive);
 
 	return animName;
 }
 
 // Static member declarations
-TMap<FString, UAnimSequence*> UStringAnimator::_stringAnimations;
-UEnum* UStringAnimator::_stringAnimationNameEnum;
+TMap<FString, UAnimSequence*> UStringAnimator::mStringAnimations;
+UEnum *UStringAnimator::mStringAnimationNameEnum;

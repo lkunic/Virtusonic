@@ -37,12 +37,12 @@ public:
 
 private:
 
-	UPickAnimator* _animator;
-	TCHAR* _timelineStatus;
-	FString _stringRoots;
+	UPickAnimator *mAnimator;
+	TCHAR *mTimelineStatus;
+	FString mStringRoots;
 
-	int32 _tempo;
-	int32 _ticksPerQuarter;
-	int32 _timelineLength;
-	float _timePerTick;
+	int32 mTempo;
+	int32 mTicksPerQuarter;
+	int32 mTimelineLength;
+	float mTimePerTick;
 };

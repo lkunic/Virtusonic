@@ -19,15 +19,16 @@ public:
 	// Sets default values for this component's properties
 	UPickController();
 
+	// The pick references are added through the actor blueprint for the instrument
+	UFUNCTION(BlueprintCallable, Category = "Pick")
+	void AddPick(APick *pick);
+
 	// Public getters
 	int32 GetPickCount();
 	APick* GetPick(int32 index);
 
-	// The pick references are added through the actor blueprint for the instrument
-	UFUNCTION(BlueprintCallable, Category = "Pick")
-	void AddPick(APick* pick);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Pick")
-	TArray<APick*> _picks;
+	TArray<APick*> mPicks;
 };

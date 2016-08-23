@@ -6,7 +6,7 @@
 /*
  * Parses the given midi file and stores the data into the given song object.
  */
-bool USongLoader::ParseMidiFile(FString filename, USong* song)
+bool USongLoader::ParseMidiFile(const FString &filename, USong &outSong)
 {
 	TArray<uint8> sar;
 	int32 index = 0;
@@ -29,13 +29,13 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 		return false;
 	}
 
-	if (!GetHeaderData(sar, &index, &trackCount, &ticksPerQuarter))
+	if (!GetHeaderData(sar, index, trackCount, ticksPerQuarter))
 	{
 		// There was an error reading the file header.
 		return false;
 	}
 
-	song->SetTicksPerQuarter(ticksPerQuarter);
+	outSong.SetTicksPerQuarter(ticksPerQuarter);
 
 	UE_LOG(VirtusonicLog, Log, TEXT("Track count: %d\n"), trackCount);
 	UE_LOG(VirtusonicLog, Log, TEXT("Ticks per quarter: %d\n"), ticksPerQuarter);
@@ -50,7 +50,7 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 	{
 		TrackEvents trackEvents;
 
-		if (!GetTrackContent(sar, &index, &trackEvents, ticksPerQuarter))
+		if (!GetTrackContent(sar, index, trackEvents, ticksPerQuarter))
 		{
 			return false;
 		}
@@ -60,8 +60,8 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 			// The second track (index 1) should contain the tempo metadata
 			if (trackEvents[0][1] == 0xff && trackEvents[0][2] == 0x51)
 			{
-				song->SetTempo(GetSongTempo(trackEvents[0]));
-				UE_LOG(VirtusonicLog, Log, TEXT("Tempo: %d\n"), song->GetTempo());
+				outSong.SetTempo(GetSongTempo(trackEvents[0]));
+				UE_LOG(VirtusonicLog, Log, TEXT("Tempo: %d\n"), outSong.GetTempo());
 			}
 			else
 			{
@@ -76,7 +76,7 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 			if (trackEvents[0][1] == 0xff && trackEvents[0][2] == 0x03)
 			{
 				trackName = GetTrackName(trackEvents[0]);
-				song->AddTrack(trackName);
+				outSong.AddTrack(trackName);
 
 				UE_LOG(VirtusonicLog, Log, TEXT("Added track %s"), *trackName);
 
@@ -86,12 +86,12 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 					// If the note event command starts with 0x9, that means that a note is starting
 					if ((trackEvents[i][1] & 0xf0) == 0x90)
 					{
-						song->StartNote(trackEvents[i][0], trackEvents[i][2], trackEvents[i][3]);
+						outSong.StartNote(trackEvents[i][0], trackEvents[i][2], trackEvents[i][3]);
 					}
 					// If the note event command starts with 0x8, the note is ending 
 					else if ((trackEvents[i][1] & 0xf0) == 0x80)
 					{
-						song->EndNote(trackName, trackEvents[i][0], trackEvents[i][2], trackEvents[i][3]);
+						outSong.EndNote(trackName, trackEvents[i][0], trackEvents[i][2], trackEvents[i][3]);
 					}
 				}
 			}
@@ -110,17 +110,17 @@ bool USongLoader::ParseMidiFile(FString filename, USong* song)
 * Parses the header in order to retrieve the track count and the number of ticks per quarter note.
 * The track count should be at least 3 (the first two tracks contain metadata and every following track contains notes for an instrument).
 */
-bool USongLoader::GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCount, int32* ticksPerQuarter)
+bool USongLoader::GetHeaderData(const TArray<uint8> &sar, int32 &index, int32 &outTrackCount, int32 &outTicksPerQuarter)
 {
 	char buffer[6] = { 0 };
 	int32 headerSize;
 	int32 midiFormat;
 
 	// The header should start with 'MThd'
-	buffer[0] = sar[(*index)++];
-	buffer[1] = sar[(*index)++];
-	buffer[2] = sar[(*index)++];
-	buffer[3] = sar[(*index)++];
+	buffer[0] = sar[index++];
+	buffer[1] = sar[index++];
+	buffer[2] = sar[index++];
+	buffer[3] = sar[index++];
 	buffer[4] = '\0';
 	if (strcmp((char*)buffer, MIDI_HEADER_LABEL) != 0)
 	{
@@ -129,10 +129,10 @@ bool USongLoader::GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCou
 	}
 
 	// The following 4 bytes contain the header length, which should always equal 6 bytes
-	buffer[0] = sar[(*index)++];
-	buffer[1] = sar[(*index)++];
-	buffer[2] = sar[(*index)++];
-	buffer[3] = sar[(*index)++];
+	buffer[0] = sar[index++];
+	buffer[1] = sar[index++];
+	buffer[2] = sar[index++];
+	buffer[3] = sar[index++];
 	headerSize = buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24);
 	if (headerSize != 0x00000006)
 	{
@@ -142,12 +142,12 @@ bool USongLoader::GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCou
 
 	// The 6 data bytes contain the midi format (2 bytes), track count (2 bytes, this is what we need) and
 	// the delta-time division units (2 bytes), which should default to 60
-	buffer[0] = sar[(*index)++];
-	buffer[1] = sar[(*index)++];
-	buffer[2] = sar[(*index)++];
-	buffer[3] = sar[(*index)++];
-	buffer[4] = sar[(*index)++];
-	buffer[5] = sar[(*index)++];
+	buffer[0] = sar[index++];
+	buffer[1] = sar[index++];
+	buffer[2] = sar[index++];
+	buffer[3] = sar[index++];
+	buffer[4] = sar[index++];
+	buffer[5] = sar[index++];
 	midiFormat = (buffer[0] << 8) | buffer[1];
 	if (midiFormat != 0x0001)
 	{
@@ -155,8 +155,8 @@ bool USongLoader::GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCou
 		return false;
 	}
 
-	*trackCount = (buffer[2] << 8) | buffer[3];
-	*ticksPerQuarter = ((buffer[4] << 8) | buffer[5]) / 8;
+	outTrackCount = (buffer[2] << 8) | buffer[3];
+	outTicksPerQuarter = ((buffer[4] << 8) | buffer[5]) / 8;
 
 	return true;
 }
@@ -164,7 +164,7 @@ bool USongLoader::GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCou
 /*
 * Parses the track bytes and stores the track events in a vector of byte vectors.
 */
-bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* trackEvents, int32 ticksPerQuarter)
+bool USongLoader::GetTrackContent(const TArray<uint8> &sar, int32 &index, TrackEvents &outTrackEvents, const int32 ticksPerQuarter)
 {
 	unsigned char buffer[5] = { 0 };
 
@@ -176,10 +176,10 @@ bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* 
 	int32 runningCommand; // Event command labels can be omitted, so this is used to track the running event
 
 						  // The track data should start with 'MTrk'
-	buffer[0] = sar[(*index)++];
-	buffer[1] = sar[(*index)++];
-	buffer[2] = sar[(*index)++];
-	buffer[3] = sar[(*index)++];
+	buffer[0] = sar[index++];
+	buffer[1] = sar[index++];
+	buffer[2] = sar[index++];
+	buffer[3] = sar[index++];
 	buffer[4] = '\0';
 	if (strcmp((char*)buffer, MIDI_TRACK_LABEL) != 0)
 	{
@@ -189,27 +189,27 @@ bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* 
 
 	// The track size is read from the following 4 bytes, but this can be inacurate so the delimiter event 'FF 2F' is used
 	// to determine the end of the track
-	buffer[0] = sar[(*index)++];
-	buffer[1] = sar[(*index)++];
-	buffer[2] = sar[(*index)++];
-	buffer[3] = sar[(*index)++];
+	buffer[0] = sar[index++];
+	buffer[1] = sar[index++];
+	buffer[2] = sar[index++];
+	buffer[3] = sar[index++];
 	trackSize = buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24);
 
-	trackEvents->Reserve(trackSize / 2);
-	trackEvents->Empty();
+	outTrackEvents.Reserve(trackSize / 2);
+	outTrackEvents.Empty();
 
 	absTicks = ticksPerQuarter * 4;
 
-	while (!((*index) >= sar.Num()))
+	while (!(index >= sar.Num()))
 	{
 		// Update the tick count at the current event
 		varlength = GetVarLength(sar, index);
 		absTicks += varlength / 8;
 
 		// Read the event data and add it to the list
-		if (ReadMidiEvent(sar, index, &eventData, &runningCommand, absTicks))
+		if (ReadMidiEvent(sar, index, eventData, runningCommand, absTicks))
 		{
-			trackEvents->Add(eventData);
+			outTrackEvents.Add(eventData);
 		}
 
 		// Check for the delimiter event
@@ -228,17 +228,17 @@ bool USongLoader::GetTrackContent(TArray<uint8> sar, int32* index, TrackEvents* 
 * The channel events contain note data (0x9n indicates start of a note, 0x8n is the note ending) and some other channel
 * settings which can be ignored.
 */
-bool USongLoader::ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* eventData, int32* runningCommand, int32 absTicks)
+bool USongLoader::ReadMidiEvent(const TArray<uint8> &sar, int32 &index, TArray<int32> &outEventData, int32 &runningCommand, const int32 absTicks)
 {
 	int32 byte;
 	int32 metaLength;
 	bool running;
 
 	// Add the tick time to the event
-	eventData->Empty();
-	eventData->Add(absTicks);
+	outEventData.Empty();
+	outEventData.Add(absTicks);
 
-	byte = sar[(*index)++];
+	byte = sar[index++];
 	if (byte < 0x80)
 	{
 		// If the byte is less than 0x80, this means that there is no command byte, so the running command is used
@@ -248,29 +248,29 @@ bool USongLoader::ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* 
 	{
 		// The byte is a new command so the running command is updated
 		running = false;
-		*runningCommand = byte;
+		runningCommand = byte;
 	}
 
 	// Add the command byte to the event
-	eventData->Add(*runningCommand);
+	outEventData.Add(runningCommand);
 	if (running)
 	{
-		eventData->Add(byte);
+		outEventData.Add(byte);
 	}
 
 	// Check the command byte type (the 4 more significant bits)
-	switch (*runningCommand & 0xf0)
+	switch (runningCommand & 0xf0)
 	{
 	case 0x80:
 	case 0x90:
 		// 0x8n and 0x9n indicate notes and contain 2 data bytes, so these are saved
 		// True return value indicates that the event needs to be added to the list
-		byte = sar[(*index)++];
-		eventData->Add(byte);
+		byte = sar[index++];
+		outEventData.Add(byte);
 		if (!running)
 		{
-			byte = sar[(*index)++];
-			eventData->Add(byte);
+			byte = sar[index++];
+			outEventData.Add(byte);
 		}
 		return true;
 
@@ -278,34 +278,34 @@ bool USongLoader::ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* 
 	case 0xA0:
 	case 0xB0:
 	case 0xE0:
-		byte = sar[(*index)++];
+		byte = sar[index++];
 	case 0xC0:
 	case 0xD0:
 		if (!running)
 		{
-			byte = sar[(*index)++];
+			byte = sar[index++];
 		}
 		return false;
 
 		// 0xFX events are treated separately depending on the lower 4 bits
 	case 0xF0:
-		switch (*runningCommand)
+		switch (runningCommand)
 		{
 		case 0xff:
 			// 0xFF indicates meta events which contain important data, so they need to be added to the list
 			if (!running)
 			{
-				byte = sar[(*index)++];
-				eventData->Add(byte);
+				byte = sar[index++];
+				outEventData.Add(byte);
 			}
 
 			// The length of the event varies based on the command
-			metaLength = sar[(*index)++];
-			eventData->Add(metaLength);
+			metaLength = sar[index++];
+			outEventData.Add(metaLength);
 			for (int32 i = 0; i < metaLength; i++)
 			{
-				byte = sar[(*index)++];
-				eventData->Add(byte);
+				byte = sar[index++];
+				outEventData.Add(byte);
 			}
 			return true;
 
@@ -315,13 +315,13 @@ bool USongLoader::ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* 
 			metaLength = GetVarLength(sar, index);
 			for (int32 i = 0; i < metaLength; i++)
 			{
-				byte = sar[(*index)++];
+				byte = sar[index++];
 			}
 			return false;
 		}
 		break;
 	default:
-		UE_LOG(VirtusonicError, Warning, TEXT("Error reading MIDI event. Found %x command byte."), *runningCommand);
+		UE_LOG(VirtusonicError, Warning, TEXT("Error reading MIDI event. Found %x command byte."), runningCommand);
 		return false;
 	}
 
@@ -337,7 +337,7 @@ bool USongLoader::ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* 
 *
 * e.g. '0x81 0x7f' would indicate the value of 0xff, and '0x82 0x80 0x00' would be 0x8000.
 */
-int32 USongLoader::GetVarLength(TArray<uint8> sar, int32* index)
+int32 USongLoader::GetVarLength(const TArray<uint8> &sar, int32 &index)
 {
 	long length = 0;
 	int32 byte;
@@ -345,7 +345,7 @@ int32 USongLoader::GetVarLength(TArray<uint8> sar, int32* index)
 	int32 i = 4;
 	while (i--)
 	{
-		byte = sar[(*index)++];
+		byte = sar[index++];
 		length = length << 7 | (byte & 0x7f);
 		if (byte < 0x80)
 		{
@@ -363,7 +363,7 @@ int32 USongLoader::GetVarLength(TArray<uint8> sar, int32* index)
 * Therefore, the tempo is calculated by dividing the number of microseconds in a minute (60kk) and the
 * microseconds-per-beat value given by the meta event.
 */
-int32 USongLoader::GetSongTempo(TArray<int32> tempoMetaEvent)
+int32 USongLoader::GetSongTempo(const TArray<int32> &tempoMetaEvent)
 {
 	long microseconds = (tempoMetaEvent[4] << 16) | (tempoMetaEvent[5] << 8) | tempoMetaEvent[6];
 
@@ -383,7 +383,7 @@ int32 USongLoader::GetSongTempo(TArray<int32> tempoMetaEvent)
 * The next two bytes indicate a meta event for setting the track name (0xff 0x03). Then follows the
 * length of the track name, and then 'length' amount of bytes containing the actual name.
 */
-FString USongLoader::GetTrackName(TArray<int32> trackNameMetaEvent)
+FString USongLoader::GetTrackName(const TArray<int32> &trackNameMetaEvent)
 {
 	int32 nameLength = trackNameMetaEvent[3];
 	char* name = (char*)malloc((nameLength + 1) * sizeof(char));

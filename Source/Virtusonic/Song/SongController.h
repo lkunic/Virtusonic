@@ -42,9 +42,9 @@ public:
 
 private:
 	UPROPERTY()
-	USong* _song;
+	USong *mSong;
 
 	int32 currentTick;
 
-	TArray<AInstrument*> _instruments;
+	TArray<AInstrument*> mInstruments;
 };

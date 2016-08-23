@@ -23,10 +23,10 @@ public:
 	
 	// The instrument name, used for mapping to MIDI tracks
 	virtual FString Name();
-	virtual TArray<UBaseTimelineAction*> GenerateActions(TArray<USongNote*> notes);
+	virtual TArray<UBaseTimelineAction*> GenerateActions(const TArray<USongNote*> &notes);
 
 protected:
-	int32 _tempo;
-	int32 _ticksPerQuarter;
-	int32 _songLength;
+	int32 mTempo;
+	int32 mTicksPerQuarter;
+	int32 mSongLength;
 };

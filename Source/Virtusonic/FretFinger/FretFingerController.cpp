@@ -12,11 +12,19 @@ UFretFingerController::UFretFingerController()
 }
 
 /*
+* Blueprint function for adding a fret finger to this controller.
+*/
+void UFretFingerController::AddFretFinger(AFretFinger* fretFinger)
+{
+	mFretFingers.Add(fretFinger);
+}
+
+/*
 * Returns the number of fret fingers.
 */
 int32 UFretFingerController::GetFretFingerCount()
 {
-	return _fretFingers.Num();
+	return mFretFingers.Num();
 }
 
 /*
@@ -24,14 +32,5 @@ int32 UFretFingerController::GetFretFingerCount()
 */
 AFretFinger* UFretFingerController::GetFretFinger(int32 index)
 {
-	return _fretFingers[index];
+	return mFretFingers[index];
 }
-
-/*
-* Blueprint function for adding a fret finger to this controller.
-*/
-void UFretFingerController::AddFretFinger(AFretFinger* fretFinger)
-{
-	_fretFingers.Add(fretFinger);
-}
-

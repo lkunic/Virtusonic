@@ -27,7 +27,7 @@
 typedef struct {
 	int32 string;
 	int32 fret;
-} StringPosition;
+} FStringPosition;
 
 /**
  *  Base 'abstract' class for all string instruments (guitar, bass, ukulele...).
@@ -41,39 +41,39 @@ public:
 
 	// Every string instrument should call this to set the controller references during BeginPlay
 	void SetControllerComponents(
-		UAudioController* audioController, UFretFingerController* fretFingerController,
-		UPickController* pickController, UStringController* stringController);
+		UAudioController *audioController, UFretFingerController *fretFingerController,
+		UPickController *pickController, UStringController *stringController);
 
 	// Overriden function for generating timeline actions
-	virtual TArray<UBaseTimelineAction*> GenerateActions(TArray<USongNote*> notes) override;
+	virtual TArray<UBaseTimelineAction*> GenerateActions(const TArray<USongNote*> &notes) override;
 
 	// These functions should be implemented by derived string instrument classes
-	virtual TArray<StringPosition*> GetPossibleStringPositions(int32 notePitch);
+	virtual TArray<FStringPosition*> GetPossibleStringPositions(int32 notePitch);
 	virtual FString GetPickAnimationPath();
 	virtual FString GetStringAnimationPath();
 	virtual FString GetStringRoots();
 
 private:
-	StringPosition GetStringPositionForNote(USongNote* note);
+	FStringPosition GetStringPositionForNote(USongNote *note);
 
 	// Audio
-	void GenerateAudioActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void GenerateAudioActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);
 
 	// Fret fingers
-	void GenerateFretFingerActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void GenerateFretFingerActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);
 
 	// Picks
 	void InitPicks();
-	void CleanupPicks(TArray<UBaseTimelineAction*>* actions);
-	void ReturnPickToRest(TArray<UBaseTimelineAction*>* actions, APick* pick);
-	void GeneratePickActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void CleanupPicks(TArray<UBaseTimelineAction*> &actions);
+	void ReturnPickToRest(TArray<UBaseTimelineAction*> &actions, APick *pick);
+	void GeneratePickActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);
 
 	// Strings
 	void InitStrings();
-	void GenerateStringActions(TArray<UBaseTimelineAction*>* actions, USongNote* note, StringPosition stringPosition);
+	void GenerateStringActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);
 
-	UAudioController* _audioController;
-	UFretFingerController* _fretFingerController;
-	UPickController* _pickController;
-	UStringController* _stringController;
+	UAudioController *mAudioController;
+	UFretFingerController *mFretFingerController;
+	UPickController *mPickController;
+	UStringController *mStringController;
 };

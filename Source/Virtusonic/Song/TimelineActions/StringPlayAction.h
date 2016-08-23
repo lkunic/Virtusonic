@@ -17,16 +17,14 @@ class VIRTUSONIC_API UStringPlayAction : public UBaseTimelineAction
 	
 public:
 	// Initializes the action with the given string reference and the current string position
-	void Init(AString* string, TCHAR stringRoot);
+	void Init(AString *string, TCHAR stringRoot);
 
 	virtual void Execute() override;
 
 private:
 	UPROPERTY()
-		AString* _string;
+	AString *mString;
 
 	UPROPERTY()
-		UAnimSequence* _animation;
-	
-	
+	UAnimSequence *mAnimation;
 };

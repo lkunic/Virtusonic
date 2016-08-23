@@ -8,7 +8,7 @@
  */
 void USong::SetTempo(int32 tempo)
 {
-	_tempo = tempo;
+	mTempo = tempo;
 }
 
 /*
@@ -16,7 +16,7 @@ void USong::SetTempo(int32 tempo)
 */
 int32 USong::GetTempo()
 {
-	return _tempo;
+	return mTempo;
 }
 
 /*
@@ -24,7 +24,7 @@ int32 USong::GetTempo()
 */
 void USong::SetTicksPerQuarter(int32 ticksPerQuarter)
 {
-	_ticksPerQuarter = ticksPerQuarter;
+	mTicksPerQuarter = ticksPerQuarter;
 }
 
 /*
@@ -32,7 +32,7 @@ void USong::SetTicksPerQuarter(int32 ticksPerQuarter)
 */
 int32 USong::GetTicksPerQuarter()
 {
-	return _ticksPerQuarter;
+	return mTicksPerQuarter;
 }
 
 /*
@@ -40,10 +40,10 @@ int32 USong::GetTicksPerQuarter()
  */
 void USong::AddTrack(FString trackName)
 {
-	SongTrack track;
+	FSongTrack track;
 	track.name = trackName;
 
-	_tracks.Add(trackName, track);
+	mTracks.Add(trackName, track);
 }
 
 /*
@@ -54,7 +54,7 @@ void USong::StartNote(int32 startTick, int32 pitch, int32 velocity)
 {
 	USongNote* note = NewObject<USongNote>();
 	note->Init(startTick, -1, pitch, velocity);
-	_startedNotes.Add(note);
+	mStartedNotes.Add(note);
 }
 
 /*
@@ -62,13 +62,13 @@ void USong::StartNote(int32 startTick, int32 pitch, int32 velocity)
  */
 void USong::EndNote(FString trackName, int32 endTick, int32 pitch, int32 velocity)
 {
-	for (int i = 0; i < _startedNotes.Num(); i++)
+	for (int i = 0; i < mStartedNotes.Num(); i++)
 	{
-		if (_startedNotes[i]->GetPitch() == pitch && _startedNotes[i]->GetStartTick() < endTick)
+		if (mStartedNotes[i]->GetPitch() == pitch && mStartedNotes[i]->GetStartTick() < endTick)
 		{
-			_startedNotes[i]->SetEndTick(endTick);
-			AddNoteToTrack(trackName, _startedNotes[i]);
-			_startedNotes.RemoveAt(i);
+			mStartedNotes[i]->SetEndTick(endTick);
+			AddNoteToTrack(trackName, mStartedNotes[i]);
+			mStartedNotes.RemoveAt(i);
 			return;
 		}
 	}
@@ -80,7 +80,7 @@ void USong::EndNote(FString trackName, int32 endTick, int32 pitch, int32 velocit
 TArray<FString> USong::TrackNames()
 {
 	TArray<FString> keys;
-	for (auto it = _tracks.CreateIterator(); it; ++it)
+	for (auto it = mTracks.CreateIterator(); it; ++it)
 	{
 		keys.Add(it->Value.name);
 	}
@@ -92,10 +92,10 @@ TArray<FString> USong::TrackNames()
  */
 void USong::GenerateTimeline(AInstrument* instrument)
 {
-	SongTrack track = GetTrack(instrument->Name());
+	FSongTrack track = GetTrack(instrument->Name());
 
 	// The tempo / ticks per quarter are required for calculating the animation lengths
-	instrument->SetSongInfo(_tempo, _ticksPerQuarter);
+	instrument->SetSongInfo(mTempo, mTicksPerQuarter);
 
 	// Make sure the notes are sorted by the start tick
 	SortNotesByStart(&track);
@@ -105,7 +105,7 @@ void USong::GenerateTimeline(AInstrument* instrument)
 	timeline->AddActions(instrument->GenerateActions(track.notes));
 	timeline->SortByTick();
 
-	_timelines.Add(timeline);
+	mTimelines.Add(timeline);
 }
 
 /*
@@ -115,9 +115,9 @@ TArray<UBaseTimelineAction*> USong::GetTimelineActions(int32 tick)
 {
 	TArray<UBaseTimelineAction*> actions;
 
-	for (int32 i = 0; i < _timelines.Num(); i++)
+	for (int32 i = 0; i < mTimelines.Num(); i++)
 	{
-		actions.Append(_timelines[i]->GetActionsAtTick(tick));
+		actions.Append(mTimelines[i]->GetActionsAtTick(tick));
 	}
 
 	return actions;
@@ -128,16 +128,16 @@ TArray<UBaseTimelineAction*> USong::GetTimelineActions(int32 tick)
 */
 void USong::AddNoteToTrack(FString trackName, USongNote* note)
 {
-	_tracks[trackName].notes.Add(note);
+	mTracks[trackName].notes.Add(note);
 	UE_LOG(VirtusonicLog, Log, TEXT("Added note to %s: %d %d %d %d"), *trackName, note->GetStartTick(), note->GetEndTick(), note->GetPitch(), note->GetVelocity());
 }
 
 /*
  * Returns the track with the given name if it exists. If not, returns an empty song track.
  */
-SongTrack USong::GetTrack(FString trackName)
+FSongTrack USong::GetTrack(FString trackName)
 {
-	for (auto it = _tracks.CreateIterator(); it; ++it)
+	for (auto it = mTracks.CreateIterator(); it; ++it)
 	{
 		if (trackName.Equals(it->Key))
 		{
@@ -146,13 +146,13 @@ SongTrack USong::GetTrack(FString trackName)
 	}
 
 	UE_LOG(VirtusonicLog, Log, TEXT("Could not find track: %s"), *trackName);
-	return SongTrack();
+	return FSongTrack();
 }
 
 /*
  * Sorts the track notes by the start tick.
  */
-void USong::SortNotesByStart(SongTrack* track)
+void USong::SortNotesByStart(FSongTrack* track)
 {
 	track->notes.StableSort(NoteSortPredicate);
 }

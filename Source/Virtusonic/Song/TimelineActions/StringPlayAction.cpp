@@ -6,10 +6,10 @@
 /*
 * Initializes the action with the given string reference and the current string position.
 */
-void UStringPlayAction::Init(AString* string, TCHAR stringRoot)
+void UStringPlayAction::Init(AString *string, TCHAR stringRoot)
 {
-	_string = string;
-	_animation = _string->GetAnimator()->GetAnimationSequence(EStringAnimations::StringVibrationUpX, stringRoot);
+	mString = string;
+	mAnimation = mString->GetAnimator()->GetAnimationSequence(EStringAnimations::StringVibrationUpX, stringRoot);
 }
 
 /*
@@ -17,8 +17,8 @@ void UStringPlayAction::Init(AString* string, TCHAR stringRoot)
 */
 void UStringPlayAction::Execute()
 {
-	_string->GetSkeletalMeshComponent()->Stop();
-	_string->GetSkeletalMeshComponent()->PlayAnimation(_animation, false);
+	mString->GetSkeletalMeshComponent()->Stop();
+	mString->GetSkeletalMeshComponent()->PlayAnimation(mAnimation, false);
 	//UE_LOG(VirtusonicLog, Log, TEXT("Playing string %s"), *(_string->GetName()));
 }
 

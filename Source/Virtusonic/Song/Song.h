@@ -15,7 +15,7 @@
 typedef struct {
 	FString name;
 	TArray<USongNote*> notes;
-} SongTrack;
+} FSongTrack;
 
 /*
  * The predicate used for sorting the notes by start tick.
@@ -51,15 +51,15 @@ public:
 
 private:
 	// Private helper functions
-	void AddNoteToTrack(FString trackName, USongNote* note);
-	SongTrack GetTrack(FString trackName);
-	void SortNotesByStart(SongTrack* track);
+	void AddNoteToTrack(FString trackName, USongNote *note);
+	FSongTrack GetTrack(FString trackName);
+	void SortNotesByStart(FSongTrack* track);
 
-	int32 _tempo;
-	int32 _ticksPerQuarter;
-	TMap<FString, SongTrack> _tracks;
-	TArray<USongNote*> _startedNotes;
+	int32 mTempo;
+	int32 mTicksPerQuarter;
+	TMap<FString, FSongTrack> mTracks;
+	TArray<USongNote*> mStartedNotes;
 
 	UPROPERTY()
-	TArray<USongTimeline*> _timelines;
+	TArray<USongTimeline*> mTimelines;
 };

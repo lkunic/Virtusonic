@@ -12,11 +12,19 @@ UPickController::UPickController()
 }
 
 /*
+* Blueprint function for adding a string to this controller.
+*/
+void UPickController::AddPick(APick *pick)
+{
+	mPicks.Add(pick);
+}
+
+/*
  * Returns the number of string.
  */
 int32 UPickController::GetPickCount()
 {
-	return _picks.Num();
+	return mPicks.Num();
 }
 
 /*
@@ -24,13 +32,6 @@ int32 UPickController::GetPickCount()
  */
 APick* UPickController::GetPick(int32 index)
 {
-	return _picks[index];
+	return mPicks[index];
 }
 
-/*
- * Blueprint function for adding a string to this controller.
- */
-void UPickController::AddPick(APick* pick)
-{
-	_picks.Add(pick);
-}

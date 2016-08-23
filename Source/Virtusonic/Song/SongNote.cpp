@@ -9,9 +9,9 @@
 void USongNote::Init(int32 startTick, int32 endTick, int32 pitch, int32 velocity)
 {
 	StartTick = startTick;
-	_endTick = endTick;
-	_pitch = pitch;
-	_velocity = velocity;
+	mEndTick = endTick;
+	mPitch = pitch;
+	mVelocity = velocity;
 }
 
 /*
@@ -27,7 +27,7 @@ int32 USongNote::GetStartTick()
 */
 int32 USongNote::GetEndTick()
 {
-	return _endTick;
+	return mEndTick;
 }
 
 /*
@@ -35,7 +35,7 @@ int32 USongNote::GetEndTick()
 */
 int32 USongNote::GetPitch()
 {
-	return _pitch;
+	return mPitch;
 }
 
 /*
@@ -43,7 +43,7 @@ int32 USongNote::GetPitch()
 */
 int32 USongNote::GetVelocity()
 {
-	return _velocity;
+	return mVelocity;
 }
 
 /*
@@ -52,7 +52,7 @@ int32 USongNote::GetVelocity()
  */
 double USongNote::GetFrequency()
 {
-	return 440.0f * pow(NOTE_FREQUENCY_FACTOR, _pitch - 0x45);
+	return 440.0f * pow(NOTE_FREQUENCY_FACTOR, mPitch - 0x45);
 }
 
 /*
@@ -60,7 +60,7 @@ double USongNote::GetFrequency()
 */
 void USongNote::SetEndTick(int32 endTick)
 {
-	_endTick = endTick;
+	mEndTick = endTick;
 }
 
 

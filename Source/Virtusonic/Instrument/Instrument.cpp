@@ -15,8 +15,8 @@ AInstrument::AInstrument()
  */
 void AInstrument::SetSongInfo(int32 tempo, int32 ticksPerQuarter)
 {
-	_tempo = tempo;
-	_ticksPerQuarter = ticksPerQuarter;
+	mTempo = tempo;
+	mTicksPerQuarter = ticksPerQuarter;
 }
 
 /*
@@ -30,7 +30,7 @@ FString AInstrument::Name()
 /*
  * Generates timeline actions for the given set of notes.
  */
-TArray<UBaseTimelineAction*> AInstrument::GenerateActions(TArray<USongNote*> notes)
+TArray<UBaseTimelineAction*> AInstrument::GenerateActions(const TArray<USongNote*> &notes)
 {
 	return TArray<UBaseTimelineAction*>();
 }

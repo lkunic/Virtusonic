@@ -10,10 +10,10 @@ AString::AString()
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Add a string animator component to the actor
-	_animator = CreateDefaultSubobject<UStringAnimator>(TEXT("StringAnimator"));
+	mAnimator = CreateDefaultSubobject<UStringAnimator>(TEXT("StringAnimator"));
 }
 
 UStringAnimator* AString::GetAnimator()
 {
-	return _animator;
+	return mAnimator;
 }

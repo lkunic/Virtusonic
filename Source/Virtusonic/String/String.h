@@ -19,5 +19,5 @@ public:
 	UStringAnimator* GetAnimator();
 
 private:
-	UStringAnimator* _animator;
+	UStringAnimator *mAnimator;
 };

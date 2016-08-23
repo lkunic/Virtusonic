@@ -34,6 +34,6 @@ private:
 	// Helper function for assembling the animation name using the given parameters
 	FString GetAnimationName(EStringAnimations anim, TCHAR X);
 
-	static TMap<FString, UAnimSequence*> _stringAnimations;
-	static UEnum* _stringAnimationNameEnum;
+	static TMap<FString, UAnimSequence*> mStringAnimations;
+	static UEnum *mStringAnimationNameEnum;
 };

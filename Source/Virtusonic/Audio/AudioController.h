@@ -20,14 +20,14 @@ public:
 	// Sets default values for this component's properties
 	UAudioController();
 
+	// Blueprint function for adding audio sources at spawn
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void AddAudioSource(AAudioSource *audioSource);
+
 	int32 GetAudioSourceCount();
 	AAudioSource* GetAudioSource(int32 index);
 
-	// Blueprint function for adding audio sources at spawn
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-	void AddAudioSource(AAudioSource* audioSource);
-
 private:
 	UPROPERTY(EditAnywhere, Category = Audio)
-	TArray<AAudioSource*> _audioSources;
+	TArray<AAudioSource*> mAudioSources;
 };

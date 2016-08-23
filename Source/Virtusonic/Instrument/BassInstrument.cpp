@@ -11,10 +11,10 @@ void ABassInstrument::BeginPlay()
 	UE_LOG(VirtusonicLog, Log, TEXT("Added Bass instrument"));
 
 	// Provide the references to the parent StringInstrument class which contains the implementation for playing string instruments
-	UAudioController* audioController = (UAudioController*)GetComponentByClass(UAudioController::StaticClass());
-	UFretFingerController* fretFingerController = (UFretFingerController*)GetComponentByClass(UFretFingerController::StaticClass());
-	UPickController* pickController = (UPickController*)GetComponentByClass(UPickController::StaticClass());
-	UStringController* stringController = (UStringController*)GetComponentByClass(UStringController::StaticClass());
+	UAudioController *audioController = (UAudioController*)GetComponentByClass(UAudioController::StaticClass());
+	UFretFingerController *fretFingerController = (UFretFingerController*)GetComponentByClass(UFretFingerController::StaticClass());
+	UPickController *pickController = (UPickController*)GetComponentByClass(UPickController::StaticClass());
+	UStringController *stringController = (UStringController*)GetComponentByClass(UStringController::StaticClass());
 
 	SetControllerComponents(audioController, fretFingerController, pickController, stringController);
 }
@@ -27,14 +27,14 @@ FString ABassInstrument::Name()
 /*
  * Returns a list of possible string/fret positions for the given note.
  */
-TArray<StringPosition*> ABassInstrument::GetPossibleStringPositions(int32 notePitch)
+TArray<FStringPosition*> ABassInstrument::GetPossibleStringPositions(int32 notePitch)
 {
 	// TODO for now it is just randomized, real algorithm needs to be implemented
-	StringPosition position;
+	FStringPosition position;
 	position.fret = FMath::RandHelper(24);
 	position.string = FMath::RandHelper(5);
 
-	TArray<StringPosition*> result;
+	TArray<FStringPosition*> result;
 	result.Add(&position);
 	
 	return result;

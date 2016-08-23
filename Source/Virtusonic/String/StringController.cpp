@@ -12,11 +12,19 @@ UStringController::UStringController()
 }
 
 /*
+* Blueprint function for adding a string to this controller.
+*/
+void UStringController::AddString(AString *string)
+{
+	mStrings.Add(string);
+}
+
+/*
 * Returns the number of strings.
 */
 int32 UStringController::GetStringCount()
 {
-	return _strings.Num();
+	return mStrings.Num();
 }
 
 /*
@@ -24,13 +32,5 @@ int32 UStringController::GetStringCount()
 */
 AString* UStringController::GetString(int32 index)
 {
-	return _strings[index];
-}
-
-/*
-* Blueprint function for adding a string to this controller.
-*/
-void UStringController::AddString(AString* string)
-{
-	_strings.Add(string);
+	return mStrings[index];
 }

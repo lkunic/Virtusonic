@@ -3,20 +3,12 @@
 #include "Virtusonic.h"
 #include "SongTimeline.h"
 
-/* 
- * Initializes the timeline.
- */
-void USongTimeline::Init()
-{
-	_nextAction = 0;
-}
-
 /*
  * Adds the given list of actions to the timeline.
  */
-void USongTimeline::AddActions(TArray<UBaseTimelineAction*> actions)
+void USongTimeline::AddActions(const TArray<UBaseTimelineAction*> &actions)
 {
-	_actionTimeline.Append(actions);
+	mActionTimeline.Append(actions);
 }
 
 /*
@@ -24,7 +16,7 @@ void USongTimeline::AddActions(TArray<UBaseTimelineAction*> actions)
  */
 void USongTimeline::SortByTick()
 {
-	_actionTimeline.StableSort(TimelineSortPredicate);
+	mActionTimeline.StableSort(TimelineSortPredicate);
 }
 
 /*
@@ -34,10 +26,12 @@ TArray<UBaseTimelineAction*> USongTimeline::GetActionsAtTick(int32 tick)
 {
 	TArray<UBaseTimelineAction*> actions;
 
-	while (_nextAction < _actionTimeline.Num() && _actionTimeline[_nextAction]->Tick <= tick)
+	for (int32 i = 0; i < mActionTimeline.Num(); i++)
 	{
-		actions.Add(_actionTimeline[_nextAction]);
-		_nextAction++;
+		if (mActionTimeline[i]->Tick == tick)
+		{
+			actions.Add(mActionTimeline[i]);
+		}
 	}
 
 	return actions;

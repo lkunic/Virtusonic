@@ -10,7 +10,7 @@ APick::APick()
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Add an pick animator component to the actor
-	_animator = CreateDefaultSubobject<UPickAnimator>(TEXT("PickAnimator"));
+	mAnimator = CreateDefaultSubobject<UPickAnimator>(TEXT("PickAnimator"));
 }
 
 /*
@@ -18,19 +18,19 @@ APick::APick()
  */
 void APick::Init(int32 tempo, int32 ticksPerQuarter, int32 lastTick, FString stringRoots)
 {
-	_tempo = tempo;
-	_ticksPerQuarter = ticksPerQuarter;
-	_timePerTick = 60.0f / (tempo * ticksPerQuarter);;
-	_timelineLength = lastTick + ticksPerQuarter * 4;
+	mTempo = tempo;
+	mTicksPerQuarter = ticksPerQuarter;
+	mTimePerTick = 60.0f / (tempo * ticksPerQuarter);;
+	mTimelineLength = lastTick + ticksPerQuarter * 4;
 
 	// Allocate the memory for the internal timeline and initialize it with 'R' (rest)
-	_timelineStatus = (TCHAR*)malloc(sizeof(TCHAR) * (_timelineLength));
-	for (int i = 0; i < _timelineLength; i++)
+	mTimelineStatus = (TCHAR*)malloc(sizeof(TCHAR) * (mTimelineLength));
+	for (int i = 0; i < mTimelineLength; i++)
 	{
-		_timelineStatus[i] = 'R';
+		mTimelineStatus[i] = 'R';
 	}
 
-	_stringRoots = stringRoots;
+	mStringRoots = stringRoots;
 }
 
 /// GENERATING PICK ACTIONS ///
@@ -53,7 +53,7 @@ bool APick::CanPlayNote(int32 tick, int32 stringIndex)
  */
 bool APick::IsPlaying(int32 tick)
 {
-	return _timelineStatus[tick] == 'P';
+	return mTimelineStatus[tick] == 'P';
 }
 
 /*
@@ -61,7 +61,7 @@ bool APick::IsPlaying(int32 tick)
  */
 bool APick::IsResting(int32 tick)
 {
-	return _timelineStatus[tick] == 'R';
+	return mTimelineStatus[tick] == 'R';
 }
 
 /*
@@ -69,7 +69,7 @@ bool APick::IsResting(int32 tick)
  */
 bool APick::IsOnCorrectString(int32 tick, int32 stringIndex)
 {
-	return  _timelineStatus[tick] == _stringRoots[stringIndex];
+	return  mTimelineStatus[tick] == mStringRoots[stringIndex];
 }
 
 /*
@@ -77,11 +77,11 @@ bool APick::IsOnCorrectString(int32 tick, int32 stringIndex)
  */
 bool APick::CanAnimateFromRest(int32 tick, int32 stringIndex)
 {
-	UAnimSequence* anim = _animator->GetAnimationSequence(EPickAnimations::RestToPickReadyX, _stringRoots[stringIndex]);
+	UAnimSequence *anim = mAnimator->GetAnimationSequence(EPickAnimations::RestToPickReadyX, mStringRoots[stringIndex]);
 
 	for (int i = tick - SequenceLengthInTicks(anim->SequenceLength / anim->RateScale); i < tick; i++)
 	{
-		if (_timelineStatus[i] != 'R')
+		if (mTimelineStatus[i] != 'R')
 		{
 			return false;
 		}
@@ -95,11 +95,11 @@ bool APick::CanAnimateFromRest(int32 tick, int32 stringIndex)
  */
 bool APick::CanAnimateFromString(int32 tick, int32 stringIndex)
 {
-	UAnimSequence* anim = _animator->GetAnimationSequence(EPickAnimations::PickReadyXToPickReadyY, _timelineStatus[tick], _stringRoots[stringIndex]);
+	UAnimSequence *anim = mAnimator->GetAnimationSequence(EPickAnimations::PickReadyXToPickReadyY, mTimelineStatus[tick], mStringRoots[stringIndex]);
 
 	for (int i = tick - SequenceLengthInTicks(anim->SequenceLength / anim->RateScale); i < tick; i++)
 	{
-		if (_timelineStatus[i] != _timelineStatus[tick])
+		if (mTimelineStatus[i] != mTimelineStatus[tick])
 		{
 			return false;
 		}
@@ -113,19 +113,19 @@ bool APick::CanAnimateFromString(int32 tick, int32 stringIndex)
  */
 bool APick::CanRestBeforePick(int32 tick)
 {
-	if (_timelineStatus[tick] == 'R')
+	if (mTimelineStatus[tick] == 'R')
 	{
 		// Already resting
 		return false;
 	}
 
-	UAnimSequence* stringToRestAnim = _animator->GetAnimationSequence(EPickAnimations::PickReadyXToRest, _timelineStatus[tick]);
-	UAnimSequence* restToStringAnim = _animator->GetAnimationSequence(EPickAnimations::RestToPickReadyX, _timelineStatus[tick]);
+	UAnimSequence *stringToRestAnim = mAnimator->GetAnimationSequence(EPickAnimations::PickReadyXToRest, mTimelineStatus[tick]);
+	UAnimSequence *restToStringAnim = mAnimator->GetAnimationSequence(EPickAnimations::RestToPickReadyX, mTimelineStatus[tick]);
 
 	for (int i = tick - SequenceLengthInTicks(stringToRestAnim->SequenceLength / stringToRestAnim->RateScale) -
 		SequenceLengthInTicks(restToStringAnim->SequenceLength / restToStringAnim->RateScale); i < tick; i++)
 	{
-		if (_timelineStatus[i] != _timelineStatus[tick])
+		if (mTimelineStatus[i] != mTimelineStatus[tick])
 		{
 			return false;
 		}
@@ -141,7 +141,7 @@ void APick::UpdateTimeline(int32 startTick, int32 endTick, TCHAR status)
 {
 	for (int i = startTick; i < endTick; i++)
 	{
-		_timelineStatus[i] = status;
+		mTimelineStatus[i] = status;
 	}
 }
 
@@ -150,7 +150,7 @@ void APick::UpdateTimeline(int32 startTick, int32 endTick, TCHAR status)
  */
 UPickAnimator* APick::GetAnimator()
 {
-	return _animator;
+	return mAnimator;
 }
 
 /*
@@ -158,9 +158,9 @@ UPickAnimator* APick::GetAnimator()
  */
 int32 APick::GetLastPlayTick()
 {
-	for (int i = _timelineLength - 1; i >= 0; i--)
+	for (int i = mTimelineLength - 1; i >= 0; i--)
 	{
-		if (_timelineStatus[i] == 'P')
+		if (mTimelineStatus[i] == 'P')
 		{
 			return i + 1;
 		}
@@ -174,7 +174,7 @@ int32 APick::GetLastPlayTick()
  */
 int32 APick::SequenceLengthInTicks(float animSequenceLength)
 {
-	return FMath::CeilToInt(animSequenceLength / _timePerTick);
+	return FMath::CeilToInt(animSequenceLength / mTimePerTick);
 }
 
 /*
@@ -182,5 +182,5 @@ int32 APick::SequenceLengthInTicks(float animSequenceLength)
  */
 TCHAR APick::TimelineStatus(int32 tick)
 {
-	return _timelineStatus[tick];
+	return mTimelineStatus[tick];
 }

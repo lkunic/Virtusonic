@@ -17,7 +17,7 @@ class VIRTUSONIC_API UPickPrepareAction : public UBaseTimelineAction
 
 public:
 	// Initializes the action with the given pick reference, the current string position and the final position
-	void Init(APick* pick, TCHAR fromString, TCHAR toString);
+	void Init(APick *pick, TCHAR fromString, TCHAR toString);
 
 	float GetAnimationLength();
 
@@ -28,10 +28,10 @@ public:
 
 private:
 	UPROPERTY()
-	APick* _pick;
+	APick *mPick;
 
 	UPROPERTY()
-	UAnimSequence* _animation;
+	UAnimSequence* mAnimation;
 
-	float _animationRate;
+	float mAnimationRate;
 };

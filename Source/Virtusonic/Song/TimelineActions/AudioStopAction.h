@@ -17,11 +17,13 @@ class VIRTUSONIC_API UAudioStopAction : public UBaseTimelineAction
 	
 public:
 	// Initializes the action by specifying the audio source
-	void Init(AAudioSource* audioSource);
+	void Init(AAudioSource *audioSource, float fadeOutDuration = 0.0f);
 
 	virtual void Execute() override;
 
 private:
 	UPROPERTY()
-	AAudioSource* _audioSource;
+	AAudioSource *mAudioSource;
+
+	float mFadeOutDuration;
 };

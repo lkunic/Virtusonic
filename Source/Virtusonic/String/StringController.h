@@ -17,15 +17,15 @@ public:
 	// Sets default values for this component's properties
 	UStringController();
 
+	// The string references are added through the actor blueprint for the instrument
+	UFUNCTION(BlueprintCallable, Category = "String")
+	void AddString(AString *string);
+
 	// Public getters
 	int32 GetStringCount();
 	AString* GetString(int32 index);
 
-	// The string references are added through the actor blueprint for the instrument
-	UFUNCTION(BlueprintCallable, Category = "String")
-	void AddString(AString* string);
-
 private:
 	UPROPERTY(EditAnywhere, Category = "String")
-	TArray<AString*> _strings;
+	TArray<AString*> mStrings;
 };

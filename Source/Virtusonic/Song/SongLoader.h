@@ -22,14 +22,14 @@ class VIRTUSONIC_API USongLoader : public UObject
 	GENERATED_BODY()
 
 public:
-	static bool ParseMidiFile(FString filename, USong* song);
+	static bool ParseMidiFile(const FString &filename, USong &outSong);
 
 private:
-	static bool GetHeaderData(TArray<uint8> sar, int32* index, int32* trackCount, int32* ticksPerQuarter);
-	static bool GetTrackContent(TArray<uint8> sar, int32* index , TrackEvents* trackEvents, int32 ticksPerQuarter);
-	static bool ReadMidiEvent(TArray<uint8> sar, int32* index, TArray<int32>* eventData, int32* runningCommand, int32 absTicks);
+	static bool GetHeaderData(const TArray<uint8> &sar, int32 &index, int32 &outTrackCount, int32 &outTicksPerQuarter);
+	static bool GetTrackContent(const TArray<uint8> &sar, int32 &index , TrackEvents &outTrackEvents, const int32 ticksPerQuarter);
+	static bool ReadMidiEvent(const TArray<uint8> &sar, int32 &index, TArray<int32> &outEventData, int32 &runningCommand, const int32 absTicks);
 
-	static int32 GetVarLength(TArray<uint8> sar, int32* index);
-	static int32 GetSongTempo(TArray<int32> tempoMetaEvent);
-	static FString GetTrackName(TArray<int32> trackNameMetaEvent);
+	static int32 GetVarLength(const TArray<uint8> &sar, int32 &index);
+	static int32 GetSongTempo(const TArray<int32> &tempoMetaEvent);
+	static FString GetTrackName(const TArray<int32> &trackNameMetaEvent);
 };

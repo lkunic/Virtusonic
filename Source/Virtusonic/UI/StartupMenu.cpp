@@ -10,6 +10,7 @@ TArray<FString> UStartupMenu::GetSongs()
 	songNames.Add("Gallop");
 	songNames.Add("TwinkleTwinkle");
 	songNames.Add("TheChase");
+	songNames.Add("TheFlower");
 
 	return songNames;
 }

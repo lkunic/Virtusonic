@@ -12,11 +12,19 @@ UAudioController::UAudioController()
 }
 
 /*
+* Adds an audio source to this component.
+*/
+void UAudioController::AddAudioSource(AAudioSource *audioSource)
+{
+	mAudioSources.Add(audioSource);
+}
+
+/*
  * Returns the number of audio sources attached to this component.
  */
 int32 UAudioController::GetAudioSourceCount()
 {
-	return _audioSources.Num();
+	return mAudioSources.Num();
 }
 
 /*
@@ -24,15 +32,5 @@ int32 UAudioController::GetAudioSourceCount()
  */
 AAudioSource* UAudioController::GetAudioSource(int32 index)
 {
-	return _audioSources[index];
+	return mAudioSources[index];
 }
-
-/*
- * Adds an audio source to this component.
- */
-void UAudioController::AddAudioSource(AAudioSource* audioSource)
-{
-	_audioSources.Add(audioSource);
-}
-
-

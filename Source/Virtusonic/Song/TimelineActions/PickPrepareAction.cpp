@@ -6,22 +6,22 @@
 /*
  * Initializes the action with the given pick reference, the current string position and the final position.
  */
-void UPickPrepareAction::Init(APick* pick, TCHAR fromString, TCHAR toString)
+void UPickPrepareAction::Init(APick *pick, TCHAR fromString, TCHAR toString)
 {
-	_pick = pick;
+	mPick = pick;
 
 	if (fromString == 'R')
 	{
 		// The string is currently in resting position
-		_animation = _pick->GetAnimator()->GetAnimationSequence(EPickAnimations::RestToPickReadyX, toString);
+		mAnimation = mPick->GetAnimator()->GetAnimationSequence(EPickAnimations::RestToPickReadyX, toString);
 	}
 	else
 	{
-		_animation = _pick->GetAnimator()->GetAnimationSequence(EPickAnimations::PickReadyXToPickReadyY, fromString, toString);
+		mAnimation = mPick->GetAnimator()->GetAnimationSequence(EPickAnimations::PickReadyXToPickReadyY, fromString, toString);
 	}
 
 	// By default, the animation rate is 1.0
-	_animationRate = 1.0f;
+	mAnimationRate = 1.0f;
 }
 
 /*
@@ -29,7 +29,7 @@ void UPickPrepareAction::Init(APick* pick, TCHAR fromString, TCHAR toString)
  */
 float UPickPrepareAction::GetAnimationLength()
 {
-	return _animation->SequenceLength / _animation->RateScale;
+	return mAnimation->SequenceLength / mAnimation->RateScale;
 }
 
 /*
@@ -37,7 +37,7 @@ float UPickPrepareAction::GetAnimationLength()
  */
 void UPickPrepareAction::SetAnimationRate(float animationRate)
 {
-	_animationRate = animationRate;
+	mAnimationRate = animationRate;
 }
 
 /*
@@ -45,8 +45,8 @@ void UPickPrepareAction::SetAnimationRate(float animationRate)
  */
 void UPickPrepareAction::Execute()
 {
-	_animation->RateScale = _animationRate;
-	_pick->GetSkeletalMeshComponent()->Stop();
-	_pick->GetSkeletalMeshComponent()->PlayAnimation(_animation, false);
+	mAnimation->RateScale = mAnimationRate;
+	mPick->GetSkeletalMeshComponent()->Stop();
+	mPick->GetSkeletalMeshComponent()->PlayAnimation(mAnimation, false);
 }
 

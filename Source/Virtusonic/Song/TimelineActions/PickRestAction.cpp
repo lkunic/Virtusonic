@@ -6,10 +6,10 @@
 /*
  * Initializes the action with the given pick reference and the current string position.
  */
-void UPickRestAction::Init(APick* pick, TCHAR fromString)
+void UPickRestAction::Init(APick *pick, TCHAR fromString)
 {
-	_pick = pick;
-	_animation = _pick->GetAnimator()->GetAnimationSequence(EPickAnimations::PickReadyXToRest, fromString);
+	mPick = pick;
+	mAnimation = mPick->GetAnimator()->GetAnimationSequence(EPickAnimations::PickReadyXToRest, fromString);
 }
 
 /*
@@ -17,7 +17,7 @@ void UPickRestAction::Init(APick* pick, TCHAR fromString)
  */
 float UPickRestAction::GetAnimationLength()
 {
-	return _animation->SequenceLength / _animation->RateScale;
+	return mAnimation->SequenceLength / mAnimation->RateScale;
 }
 
 /*
@@ -25,8 +25,8 @@ float UPickRestAction::GetAnimationLength()
  */
 void UPickRestAction::Execute()
 {
-	_pick->GetSkeletalMeshComponent()->Stop();
-	_pick->GetSkeletalMeshComponent()->PlayAnimation(_animation, false);
+	mPick->GetSkeletalMeshComponent()->Stop();
+	mPick->GetSkeletalMeshComponent()->PlayAnimation(mAnimation, false);
 }
 
 

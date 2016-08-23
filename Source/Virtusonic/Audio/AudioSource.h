@@ -17,17 +17,19 @@ public:
 	// Sets default values for this actor's properties
 	AAudioSource();
 
-	void PlayNote(double frequency);
-
-	void Stop();
-
 	UFUNCTION(BlueprintCallable, Category = "Audio")
-	void SetSound(USoundCue* sound, float soundFrequency);
+	void SetSound(USoundCue *sound, float soundFrequency);
+
+	void PlayNote(double frequency);
+	void Stop(double fadeOutDuration = 0.0f);
 
 private:
 	// The audio component used for actually playing the sound
-	UAudioComponent* _audioComponent;	
+	UAudioComponent *mAudioComponent;	
 
 	// The frequency of the base sound, used for modulating the frequency of the sound being played
-	float _soundFrequency;
+	float mSoundFrequency;
+
+	// The default volume multiplier for the sound
+	float mSoundVolume;
 };

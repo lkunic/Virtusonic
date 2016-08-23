@@ -6,9 +6,10 @@
 /*
  * Initializes the action with the given audio source.
  */
-void UAudioStopAction::Init(AAudioSource* audioSource)
+void UAudioStopAction::Init(AAudioSource *audioSource, float fadeOutDuration)
 {
-	_audioSource = audioSource;
+	mAudioSource = audioSource;
+	mFadeOutDuration = fadeOutDuration;
 }
 
 /*
@@ -16,7 +17,7 @@ void UAudioStopAction::Init(AAudioSource* audioSource)
  */
 void UAudioStopAction::Execute()
 {
-	_audioSource->Stop();
+	mAudioSource->Stop(mFadeOutDuration);
 	//UE_LOG(VirtusonicLog, Log, TEXT("Stopping sound on %s"), *(_audioSource->GetName()));
 }
 

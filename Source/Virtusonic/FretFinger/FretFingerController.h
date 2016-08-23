@@ -17,15 +17,15 @@ public:
 	// Sets default values for this component's properties
 	UFretFingerController();
 
+	// The fret finger references are added through the actor blueprint for the instrument
+	UFUNCTION(BlueprintCallable, Category = "FretFinger")
+	void AddFretFinger(AFretFinger *fretFinger);
+
 	// Public getters
 	int32 GetFretFingerCount();
 	AFretFinger* GetFretFinger(int32 index);
 
-	// The fret finger references are added through the actor blueprint for the instrument
-	UFUNCTION(BlueprintCallable, Category = "FretFinger")
-	void AddFretFinger(AFretFinger* fretFinger);
-
 private:
 	UPROPERTY(EditAnywhere, Category = "FretFinger")
-	TArray<AFretFinger*> _fretFingers;
+	TArray<AFretFinger*> mFretFingers;
 };
