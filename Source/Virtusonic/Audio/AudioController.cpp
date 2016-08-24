@@ -17,6 +17,7 @@ UAudioController::UAudioController()
 void UAudioController::AddAudioSource(AAudioSource *audioSource)
 {
 	mAudioSources.Add(audioSource);
+	mAlternateIndex.Add(0);
 }
 
 /*
@@ -32,5 +33,6 @@ int32 UAudioController::GetAudioSourceCount()
  */
 AAudioSource* UAudioController::GetAudioSource(int32 index)
 {
-	return mAudioSources[index];
+	mAlternateIndex[index] = (mAlternateIndex[index] + 1) % 4;
+	return mAudioSources[index + mAlternateIndex[index] * mAudioSources.Num() / 4];
 }

@@ -15,12 +15,16 @@ void ASongController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(VirtusonicLog, Log, TEXT("Loading song: %s.mid"), *_songName);
+	if (SongName.IsEmpty())
+	{
+		SongName = "CMajor";
+	}
+	UE_LOG(VirtusonicLog, Log, TEXT("Loading song: %s.mid"), *SongName);
 	
 	// Loads the MIDI file containing the song from the content folder
 	mSong = NewObject<USong>();
 	mSong->AddToRoot();
-	USongLoader::ParseMidiFile(FPaths::GameContentDir().Append("\\Songs\\").Append(*_songName).Append(".mid"), *mSong);
+	USongLoader::ParseMidiFile(FPaths::GameContentDir().Append("Songs/").Append(*SongName).Append(".mid"), *mSong);
 
 	// Initializes the tick counter
 	currentTick = 0;

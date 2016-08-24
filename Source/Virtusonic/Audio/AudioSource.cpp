@@ -29,10 +29,9 @@ void AAudioSource::SetSound(USoundCue *sound, float soundFrequency)
  */
 void AAudioSource::PlayNote(double frequency)
 {
-	mAudioComponent->Stop();
 	mAudioComponent->SetVolumeMultiplier(mSoundVolume);
 	mAudioComponent->SetPitchMultiplier(frequency / mSoundFrequency);
-	mAudioComponent->Play(0.30f);
+	mAudioComponent->Play(0.00f);
 }
 
 /*

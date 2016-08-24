@@ -96,14 +96,15 @@ FStringPosition AStringInstrument::GetStringPositionForNote(USongNote *note)
  */
 void AStringInstrument::GenerateAudioActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition)
 {
+	AAudioSource *audioSource = mAudioController->GetAudioSource(stringPosition.string);
 	UAudioPlayAction *playAction = NewObject<UAudioPlayAction>();
-	playAction->Init(mAudioController->GetAudioSource(stringPosition.string), note->GetFrequency());
-	playAction->Tick = note->GetStartTick();
+	playAction->Init(audioSource, note->GetFrequency());
+	playAction->Tick = note->GetStartTick() + 1;
 	actions.Add(playAction);
 
 	UAudioStopAction *stopAction = NewObject<UAudioStopAction>();
-	stopAction->Init(mAudioController->GetAudioSource(stringPosition.string), 60.0f / (mTicksPerQuarter * mTempo));
-	stopAction->Tick = note->GetEndTick() - 1;
+	stopAction->Init(audioSource, 120.0 / (mTicksPerQuarter * mTempo));
+	stopAction->Tick = note->GetEndTick();
 	actions.Add(stopAction);
 }
 

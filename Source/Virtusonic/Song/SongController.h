@@ -38,7 +38,7 @@ public:
 
 	// The song name (used for loading the song file)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Song")
-	FString _songName = "CMajor";
+	FString SongName = "CMajor";
 
 private:
 	UPROPERTY()

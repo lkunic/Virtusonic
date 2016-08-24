@@ -30,4 +30,5 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category = Audio)
 	TArray<AAudioSource*> mAudioSources;
+	TArray<int16> mAlternateIndex;
 };

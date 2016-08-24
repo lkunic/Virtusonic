@@ -31,11 +31,27 @@ TArray<FStringPosition*> ABassInstrument::GetPossibleStringPositions(int32 noteP
 {
 	// TODO for now it is just randomized, real algorithm needs to be implemented
 	FStringPosition position;
-	position.fret = FMath::RandHelper(24);
-	position.string = FMath::RandHelper(5);
-
 	TArray<FStringPosition*> result;
-	result.Add(&position);
+
+	int32 fretboardRoots[] = { 47, 52, 57, 62, 67 };
+	int32 fretCount = 24;
+
+	for (int32 i = 0; i < 5; i++)
+	{
+		if (notePitch >= fretboardRoots[i] && notePitch <= fretboardRoots[i] + fretCount)
+		{
+			position.fret = notePitch - fretboardRoots[i];
+			position.string = i;
+			result.Add(&position);
+		}
+	}
+
+	if (result.Num() == 0)
+	{
+		position.fret = FMath::RandHelper(24);
+		position.string = FMath::RandHelper(5);
+		result.Add(&position);
+	}
 	
 	return result;
 }
