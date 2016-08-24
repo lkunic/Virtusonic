@@ -20,7 +20,7 @@ public:
 
 	// Virtual function overrides
 	virtual FString Name() override;
-	virtual TArray<FStringPosition*> GetPossibleStringPositions(int32 notePitch) override;
+	virtual TArray<FStringPosition> GetPossibleStringPositions(int8 notePitch) override;
 	virtual FString GetPickAnimationPath() override;
 	virtual FString GetStringAnimationPath() override;
 	virtual FString GetStringRoots() override;

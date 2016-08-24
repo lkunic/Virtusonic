@@ -37,6 +37,13 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	//InitFretFingers();
 	InitStrings();
 
+	mFingeringGraph = NewObject<UStringInstrumentFingeringGraph>();
+	//mFingeringGraph->Init(mFretFingerController->GetFretFingerCount(), GetStringRoots().Len());
+	for (int i = 0; i < notes.Num(); i++)
+	{
+		mFingeringGraph->AddNote(notes[i], GetPossibleStringPositions(notes[i]->GetPitch()));
+	}
+
 	for (int i = 0; i < notes.Num(); i++)
 	{
 		position = GetStringPositionForNote(notes[i]);
@@ -58,9 +65,9 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 
 /// VIRTUAL FUNCTIONS ///
 
-TArray<FStringPosition*> AStringInstrument::GetPossibleStringPositions(int32 notePitch)
+TArray<FStringPosition> AStringInstrument::GetPossibleStringPositions(int8 notePitch)
 {
-	return TArray<FStringPosition*>();
+	return TArray<FStringPosition>();
 }
 
 FString AStringInstrument::GetPickAnimationPath()
@@ -86,7 +93,7 @@ FString AStringInstrument::GetStringRoots()
 FStringPosition AStringInstrument::GetStringPositionForNote(USongNote *note)
 {
 	// TODO - implement, will probably use DP graph search to find the minimum effort fingering.
-	return *GetPossibleStringPositions(note->GetPitch())[0];
+	return GetPossibleStringPositions(note->GetPitch())[0];
 }
 
 /// AUDIO FUNCTIONS ///
@@ -96,7 +103,7 @@ FStringPosition AStringInstrument::GetStringPositionForNote(USongNote *note)
  */
 void AStringInstrument::GenerateAudioActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition)
 {
-	AAudioSource *audioSource = mAudioController->GetAudioSource(stringPosition.string);
+	AAudioSource *audioSource = mAudioController->GetAudioSource(stringPosition.String);
 	UAudioPlayAction *playAction = NewObject<UAudioPlayAction>();
 	playAction->Init(audioSource, note->GetFrequency());
 	playAction->Tick = note->GetStartTick() + 1;
@@ -171,7 +178,7 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 {
 	APick *pick;
 
-	TCHAR stringRoot = GetStringRoots()[stringPosition.string];
+	TCHAR stringRoot = GetStringRoots()[stringPosition.String];
 	int32 noteTick = note->GetStartTick();
 	int32 lastTick;
 
@@ -191,7 +198,7 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 			bestTick = lastTick;
 		}
 
-		if (pick->CanPlayNote(noteTick, stringPosition.string))
+		if (pick->CanPlayNote(noteTick, stringPosition.String))
 		{
 			// Check if the pick can be moved back to the resting position before moving back to play this note
 			if (pick->CanRestBeforePick(noteTick))
@@ -262,10 +269,10 @@ void AStringInstrument::InitStrings()
 
 void AStringInstrument::GenerateStringActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition)
 {
-	TCHAR stringRoot = GetStringRoots()[stringPosition.string];
+	TCHAR stringRoot = GetStringRoots()[stringPosition.String];
 
 	UStringPlayAction *playAction = NewObject<UStringPlayAction>();
-	playAction->Init(mStringController->GetString(stringPosition.string), stringRoot);
+	playAction->Init(mStringController->GetString(stringPosition.String), stringRoot);
 	playAction->Tick = note->GetStartTick();
 	actions.Add(playAction);
 }

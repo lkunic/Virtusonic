@@ -27,11 +27,9 @@ FString ABassInstrument::Name()
 /*
  * Returns a list of possible string/fret positions for the given note.
  */
-TArray<FStringPosition*> ABassInstrument::GetPossibleStringPositions(int32 notePitch)
+TArray<FStringPosition> ABassInstrument::GetPossibleStringPositions(int8 notePitch)
 {
-	// TODO for now it is just randomized, real algorithm needs to be implemented
-	FStringPosition position;
-	TArray<FStringPosition*> result;
+	TArray<FStringPosition> result;
 
 	int32 fretboardRoots[] = { 47, 52, 57, 62, 67 };
 	int32 fretCount = 24;
@@ -40,17 +38,19 @@ TArray<FStringPosition*> ABassInstrument::GetPossibleStringPositions(int32 noteP
 	{
 		if (notePitch >= fretboardRoots[i] && notePitch <= fretboardRoots[i] + fretCount)
 		{
-			position.fret = notePitch - fretboardRoots[i];
-			position.string = i;
-			result.Add(&position);
+			FStringPosition position;
+			position.Fret = notePitch - fretboardRoots[i];
+			position.String = i;
+			result.Add(position);
 		}
 	}
 
 	if (result.Num() == 0)
 	{
-		position.fret = FMath::RandHelper(24);
-		position.string = FMath::RandHelper(5);
-		result.Add(&position);
+		FStringPosition position;
+		position.Fret = FMath::RandHelper(24);
+		position.String = FMath::RandHelper(5);
+		result.Add(position);
 	}
 	
 	return result;

@@ -12,10 +12,16 @@
 /*
  * The song track structure, contains the track name (used for mapping to instruments) and a list of notes.
  */
-typedef struct {
-	FString name;
-	TArray<USongNote*> notes;
-} FSongTrack;
+USTRUCT()
+struct VIRTUSONIC_API FSongTrack {
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString Name;
+
+	UPROPERTY()
+	TArray<USongNote*> Notes;
+};
 
 /*
  * The predicate used for sorting the notes by start tick.
@@ -53,7 +59,7 @@ private:
 	// Private helper functions
 	void AddNoteToTrack(FString trackName, USongNote *note);
 	FSongTrack GetTrack(FString trackName);
-	void SortNotesByStart(FSongTrack* track);
+	void SortNotesByStart(FSongTrack &track);
 
 	int32 mTempo;
 	int32 mTicksPerQuarter;

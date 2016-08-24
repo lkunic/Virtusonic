@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Instrument/Instrument.h"
+#include "Instrument/StringInstrumentFingeringGraph.h"
 
 #include "Audio/AudioController.h"
 #include "FretFinger/FretFingerController.h"
@@ -24,11 +25,6 @@
 
 #include "StringInstrument.generated.h"
 
-typedef struct {
-	int32 string;
-	int32 fret;
-} FStringPosition;
-
 /**
  *  Base 'abstract' class for all string instruments (guitar, bass, ukulele...).
  */
@@ -48,7 +44,7 @@ public:
 	virtual TArray<UBaseTimelineAction*> GenerateActions(const TArray<USongNote*> &notes) override;
 
 	// These functions should be implemented by derived string instrument classes
-	virtual TArray<FStringPosition*> GetPossibleStringPositions(int32 notePitch);
+	virtual TArray<FStringPosition> GetPossibleStringPositions(int8 notePitch);
 	virtual FString GetPickAnimationPath();
 	virtual FString GetStringAnimationPath();
 	virtual FString GetStringRoots();
@@ -76,4 +72,7 @@ private:
 	UFretFingerController *mFretFingerController;
 	UPickController *mPickController;
 	UStringController *mStringController;
+
+	UPROPERTY()
+	UStringInstrumentFingeringGraph *mFingeringGraph;
 };

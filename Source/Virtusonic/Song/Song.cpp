@@ -41,7 +41,7 @@ int32 USong::GetTicksPerQuarter()
 void USong::AddTrack(FString trackName)
 {
 	FSongTrack track;
-	track.name = trackName;
+	track.Name = trackName;
 
 	mTracks.Add(trackName, track);
 }
@@ -82,7 +82,7 @@ TArray<FString> USong::TrackNames()
 	TArray<FString> keys;
 	for (auto it = mTracks.CreateIterator(); it; ++it)
 	{
-		keys.Add(it->Value.name);
+		keys.Add(it->Value.Name);
 	}
 	return keys;
 }
@@ -98,11 +98,11 @@ void USong::GenerateTimeline(AInstrument* instrument)
 	instrument->SetSongInfo(mTempo, mTicksPerQuarter);
 
 	// Make sure the notes are sorted by the start tick
-	SortNotesByStart(&track);
+	SortNotesByStart(track);
 
 	// Generate the timeline and sort it again (some actions are added retroactively so they are probably out of place)
 	USongTimeline* timeline = NewObject<USongTimeline>();
-	timeline->AddActions(instrument->GenerateActions(track.notes));
+	timeline->AddActions(instrument->GenerateActions(track.Notes));
 	timeline->SortByTick();
 
 	mTimelines.Add(timeline);
@@ -128,7 +128,7 @@ TArray<UBaseTimelineAction*> USong::GetTimelineActions(int32 tick)
 */
 void USong::AddNoteToTrack(FString trackName, USongNote* note)
 {
-	mTracks[trackName].notes.Add(note);
+	mTracks[trackName].Notes.Add(note);
 	UE_LOG(VirtusonicLog, Log, TEXT("Added note to %s: %d %d %d %d"), *trackName, note->GetStartTick(), note->GetEndTick(), note->GetPitch(), note->GetVelocity());
 }
 
@@ -152,9 +152,9 @@ FSongTrack USong::GetTrack(FString trackName)
 /*
  * Sorts the track notes by the start tick.
  */
-void USong::SortNotesByStart(FSongTrack* track)
+void USong::SortNotesByStart(FSongTrack &track)
 {
-	track->notes.StableSort(NoteSortPredicate);
+	track.Notes.StableSort(NoteSortPredicate);
 }
 
 
