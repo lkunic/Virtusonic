@@ -38,7 +38,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	InitStrings();
 
 	mFingeringGraph = NewObject<UStringInstrumentFingeringGraph>();
-	//mFingeringGraph->Init(mFretFingerController->GetFretFingerCount(), GetStringRoots().Len());
+	mFingeringGraph->Init(mFretFingerController->GetFretFingerCount(), GetStringRoots().Len());
 	for (int i = 0; i < notes.Num(); i++)
 	{
 		mFingeringGraph->AddNote(notes[i], GetPossibleStringPositions(notes[i]->GetPitch()));

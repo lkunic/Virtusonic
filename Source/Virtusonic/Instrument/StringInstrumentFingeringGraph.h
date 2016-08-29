@@ -7,6 +7,8 @@
 
 #include "StringInstrumentFingeringGraph.generated.h"
 
+#define FINGER_PRESS_ANIM_DURATION 5
+
 USTRUCT()
 struct VIRTUSONIC_API FStringPosition
 {

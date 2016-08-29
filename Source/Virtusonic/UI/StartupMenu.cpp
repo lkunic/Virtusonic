@@ -7,12 +7,13 @@ TArray<FString> UStartupMenu::GetSongs()
 {
 	TArray<FString> songNames;
 
-	songNames.Add("CMajor");
-	songNames.Add("Gallop");
-	songNames.Add("TheChase");
-	songNames.Add("TheFlower");
-	songNames.Add("TwinkleTwinkle");
-
+	TArray<FString> fileNames;
+	IFileManager::Get().FindFiles(fileNames, *FPaths::GameContentDir().Append("Songs"), TEXT(".mid"));
+	
+	for (FString file : fileNames)
+	{
+		songNames.Add(file.LeftChop(4));
+	}
 
 	return songNames;
 }

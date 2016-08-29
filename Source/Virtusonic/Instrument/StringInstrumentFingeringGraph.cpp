@@ -44,18 +44,20 @@ void UStringInstrumentFingeringGraph::AddNote(USongNote *note, const TArray<FStr
 				mLastLayer[iParentConfig]->Children.Add(newConfig);
 				currentLayer.Add(newConfig);
 			}
-
-			for (int i = 0; i < mFingerCount; i++)
+			else
 			{
-				if (CanPlayNote(baseCurrentConfig, position, i))
+				for (int i = 0; i < mFingerCount; i++)
 				{
-					UNoteConfig *newConfig = DuplicateObject<UNoteConfig>(baseCurrentConfig, baseCurrentConfig->GetOuter());
-					newConfig->FingerStates[i].Fret = position.Fret;
-					newConfig->FingerStates[i].IsPinPressing[position.String] = true;
-					newConfig->FingerStates[i].PinPressEndTick[position.String] = note->GetEndTick();
-					newConfig->Parent = mLastLayer[iParentConfig];
-					mLastLayer[iParentConfig]->Children.Add(newConfig);
-					currentLayer.Add(newConfig);
+					if (CanPlayNote(baseCurrentConfig, position, i))
+					{
+						UNoteConfig *newConfig = DuplicateObject<UNoteConfig>(baseCurrentConfig, baseCurrentConfig->GetOuter());
+						newConfig->FingerStates[i].Fret = position.Fret;
+						newConfig->FingerStates[i].IsPinPressing[position.String] = true;
+						newConfig->FingerStates[i].PinPressEndTick[position.String] = note->GetEndTick();
+						newConfig->Parent = mLastLayer[iParentConfig];
+						mLastLayer[iParentConfig]->Children.Add(newConfig);
+						currentLayer.Add(newConfig);
+					}
 				}
 			}
 		}
@@ -77,12 +79,12 @@ UNoteConfig* UStringInstrumentFingeringGraph::CreateNoteConfig(const UNoteConfig
 	UNoteConfig *result = DuplicateObject<UNoteConfig>(parentConfig, parentConfig->GetOuter());
 	for (int iFingerState = 0; iFingerState < result->FingerStates.Num(); iFingerState++)
 	{
-		FFingerState fingerState = result->FingerStates[iFingerState];
-		for (int i = 0, n = fingerState.IsPinPressing.Num(); i < n; i++)
+		for (int i = 0, n = result->FingerStates[iFingerState].IsPinPressing.Num(); i < n; i++)
 		{
-			if (fingerState.IsPinPressing[i] && fingerState.PinPressEndTick[i] < note->StartTick)
+			if (result->FingerStates[iFingerState].IsPinPressing[i] && 
+				result->FingerStates[iFingerState].PinPressEndTick[i] < note->StartTick - FINGER_PRESS_ANIM_DURATION)
 			{
-				fingerState.IsPinPressing[i] = false;
+				result->FingerStates[iFingerState].IsPinPressing[i] = false;
 			}
 		}
 	}
@@ -92,6 +94,8 @@ UNoteConfig* UStringInstrumentFingeringGraph::CreateNoteConfig(const UNoteConfig
 
 void UStringInstrumentFingeringGraph::DeleteNoteConfig(UNoteConfig *config)
 {
+	if (config->Parent == nullptr) return;
+
 	config->Parent->Children.Remove(config);
 
 	if (config->Parent->Children.Num() == 0)
@@ -106,7 +110,7 @@ bool UStringInstrumentFingeringGraph::PositionAvailable(UNoteConfig *currentConf
 	for (int iFingerState = 0; iFingerState < currentConfig->FingerStates.Num(); iFingerState++)
 	{
 		FFingerState fingerState = currentConfig->FingerStates[iFingerState];
-		if (fingerState.IsPinPressing[position.String])
+		if (fingerState.IsPinPressing[position.String] && fingerState.Fret != position.Fret)
 		{
 			return false;
 		}
@@ -121,7 +125,7 @@ bool UStringInstrumentFingeringGraph::CanPlayNote(UNoteConfig *currentConfig, co
 	FFingerState fingerState = currentConfig->FingerStates[fingerIndex];
 	
 	// If the finger is already on the correct fret, return true
-	if (fingerState.Fret == position.Fret && !fingerState.IsPinPressing[position.String])
+	if (fingerState.Fret == position.Fret)
 	{
 		return true;
 	}
@@ -135,13 +139,13 @@ bool UStringInstrumentFingeringGraph::CanPlayNote(UNoteConfig *currentConfig, co
 	for (int i = 0, n = currentConfig->FingerStates.Num(); i < n; i++)
 	{
 		// If a lower index finger is currently pressing between this finger and the target fret
-		if (i < fingerIndex && currentConfig->FingerStates[i].Fret <= position.Fret && currentConfig->FingerStates[i].IsPressing())
+		if (i < fingerIndex && currentConfig->FingerStates[i].Fret >= position.Fret && currentConfig->FingerStates[i].IsPressing())
 		{
 			return false;
 		}
 
 		// If a higher index finger is currently pressing between this finger and the target fret
-		if (i > fingerIndex && currentConfig->FingerStates[i].Fret >= position.Fret && currentConfig->FingerStates[i].IsPressing())
+		if (i > fingerIndex && currentConfig->FingerStates[i].Fret <= position.Fret && currentConfig->FingerStates[i].IsPressing())
 		{
 			return false;
 		}
