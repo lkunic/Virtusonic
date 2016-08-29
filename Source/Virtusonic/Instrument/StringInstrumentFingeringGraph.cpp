@@ -6,146 +6,226 @@
 void UStringInstrumentFingeringGraph::Init(const int8 fingerCount, const int8 stringCount)
 {
 	mFingerCount = fingerCount;
-	mRoot = NewObject<UNoteConfig>();
-	for (int i = 0; i < fingerCount; i++)
+	mStringCount = stringCount;
+
+	mRoot = NewObject<UGraphNode>();
+
+	FStringPosition position;
+	position.Fret = -1;
+	position.String = -1;
+	mRoot->StringPosition = position;
+	mRoot->FingerIndex = -1;
+	mRoot->Note = nullptr;
+	mRoot->Children.Empty();
+
+	FFingerboardState fingerboardState;
+	fingerboardState.ParentIndex = -1;
+	fingerboardState.ParentScore = 0;
+	for (int iFinger = 0; iFinger < mFingerCount; iFinger++)
 	{
 		FFingerState fingerState;
 		fingerState.Fret = 0;
-		for (int j = 0; j < stringCount; j++)
+		for (int iString = 0; iString < mStringCount; iString++)
 		{
 			fingerState.IsPinPressing.Add(false);
 			fingerState.PinPressEndTick.Add(0);
 		}
-		mRoot->FingerStates.Add(fingerState);
+
+		fingerboardState.FingerStates.Add(fingerState);
 	}
 
-	mRoot->Parent = nullptr;
-	mRoot->Children.Empty();
+	mRoot->FingerboardStates.Add(fingerboardState);
 
 	mLastLayer.Add(mRoot);
 }
 
-void UStringInstrumentFingeringGraph::AddNote(USongNote *note, const TArray<FStringPosition> notePositions)
+void UStringInstrumentFingeringGraph::AddNote(USongNote *note, const TArray<FStringPosition> &notePositions)
 {
-	TArray<UNoteConfig*> currentLayer;
+	TArray<UGraphNode*> currentLayer;
 
-	for (int iParentConfig = 0; iParentConfig < mLastLayer.Num(); iParentConfig++)
+	for (int8 iFinger = 0; iFinger < mFingerCount; iFinger++)
 	{
-		UNoteConfig *baseCurrentConfig = CreateNoteConfig(mLastLayer[iParentConfig], note);
-		for (FStringPosition position : notePositions)
+		for (int8 iPosition = 0; iPosition < notePositions.Num(); iPosition++)
 		{
-			if (!PositionAvailable(baseCurrentConfig, position)) continue;
+			UGraphNode *node = NewObject<UGraphNode>();
+			node->StringPosition = notePositions[iPosition];
+			node->Note = note;
+			node->FingerboardStates.Empty();
+			node->Parents.Empty();
+			node->Children.Empty();
 
-			if (position.Fret == 0)
+			if (notePositions[iPosition].Fret != 0)
 			{
-				// Note is on an empty string, the finger states don't change
-				UNoteConfig *newConfig = DuplicateObject<UNoteConfig>(baseCurrentConfig, baseCurrentConfig->GetOuter());
-				newConfig->Parent = mLastLayer[iParentConfig];
-				mLastLayer[iParentConfig]->Children.Add(newConfig);
-				currentLayer.Add(newConfig);
+				node->FingerIndex = iFinger;
 			}
 			else
 			{
-				for (int i = 0; i < mFingerCount; i++)
-				{
-					if (CanPlayNote(baseCurrentConfig, position, i))
-					{
-						UNoteConfig *newConfig = DuplicateObject<UNoteConfig>(baseCurrentConfig, baseCurrentConfig->GetOuter());
-						newConfig->FingerStates[i].Fret = position.Fret;
-						newConfig->FingerStates[i].IsPinPressing[position.String] = true;
-						newConfig->FingerStates[i].PinPressEndTick[position.String] = note->GetEndTick();
-						newConfig->Parent = mLastLayer[iParentConfig];
-						mLastLayer[iParentConfig]->Children.Add(newConfig);
-						currentLayer.Add(newConfig);
-					}
-				}
+				node->FingerIndex = -1;
 			}
-		}
-	}
 
-	for (UNoteConfig *parentConfig : mLastLayer)
-	{
-		if (parentConfig->Children.Num() == 0)
-		{
-			DeleteNoteConfig(parentConfig);
+			for (UGraphNode *parentNode : mLastLayer)
+			{
+				parentNode->Children.Add(node);
+			}
+
+			currentLayer.Add(node);
 		}
 	}
 
 	mLastLayer = currentLayer;
 }
 
-UNoteConfig* UStringInstrumentFingeringGraph::CreateNoteConfig(const UNoteConfig *parentConfig, USongNote *note)
+void UStringInstrumentFingeringGraph::CalculateFingering()
 {
-	UNoteConfig *result = DuplicateObject<UNoteConfig>(parentConfig, parentConfig->GetOuter());
-	for (int iFingerState = 0; iFingerState < result->FingerStates.Num(); iFingerState++)
+	mLastLayer.Empty();
+	mLastLayer.Add(mRoot);
+	TArray<UGraphNode*> currentLayer = mRoot->Children;
+
+	while (currentLayer.Num() != 0)
 	{
-		for (int i = 0, n = result->FingerStates[iFingerState].IsPinPressing.Num(); i < n; i++)
+		for (UGraphNode *parentNode : mLastLayer)
 		{
-			if (result->FingerStates[iFingerState].IsPinPressing[i] && 
-				result->FingerStates[iFingerState].PinPressEndTick[i] < note->StartTick - FINGER_PRESS_ANIM_DURATION)
+			UpdateFingerboardStates(parentNode, currentLayer[0]->Note);
+			CalculateTransitionScores(parentNode);
+		}
+
+		mLastLayer = currentLayer;
+		currentLayer = currentLayer[0]->Children;
+	}
+
+	UGraphNode *bestNode = nullptr;
+	int32 bestScore = MAXINT32;
+
+	for (UGraphNode *endNode : mLastLayer)
+	{
+		for (auto fingerboardStateIt = endNode->FingerboardStates.CreateIterator(); fingerboardStateIt; ++fingerboardStateIt)
+		{
+			if (fingerboardStateIt->ParentScore < bestScore)
 			{
-				result->FingerStates[iFingerState].IsPinPressing[i] = false;
+				bestNode = endNode;
+				bestScore = fingerboardStateIt->ParentScore;
 			}
 		}
 	}
 
-	return result;
+	BuildOptimalFingering(bestNode);
+
+	mRoot = nullptr;
+	mLastLayer.Empty();
 }
 
-void UStringInstrumentFingeringGraph::DeleteNoteConfig(UNoteConfig *config)
+void UStringInstrumentFingeringGraph::UpdateFingerboardStates(UGraphNode *node, const USongNote* note)
 {
-	if (config->Parent == nullptr) return;
-
-	config->Parent->Children.Remove(config);
-
-	if (config->Parent->Children.Num() == 0)
+	for (auto fingerboardStateIt = node->FingerboardStates.CreateIterator(); fingerboardStateIt; ++fingerboardStateIt)
 	{
-		DeleteNoteConfig(config->Parent);
-	}
-}
-
-
-bool UStringInstrumentFingeringGraph::PositionAvailable(UNoteConfig *currentConfig, const FStringPosition position)
-{
-	for (int iFingerState = 0; iFingerState < currentConfig->FingerStates.Num(); iFingerState++)
-	{
-		FFingerState fingerState = currentConfig->FingerStates[iFingerState];
-		if (fingerState.IsPinPressing[position.String] && fingerState.Fret != position.Fret)
+		for (auto fingerStateIt = fingerboardStateIt->FingerStates.CreateIterator(); fingerStateIt; ++fingerStateIt)
 		{
-			return false;
+			for (int iPin = 0; iPin < fingerStateIt->IsPinPressing.Num(); iPin++)
+			{
+				if (fingerStateIt->IsPinPressing[iPin])
+				{
+					if (fingerStateIt->PinPressEndTick[iPin] <= note->StartTick)
+					{
+						fingerStateIt->IsPinPressing[iPin] = false;
+					}
+				}
+				else
+				{
+					if (fingerStateIt->PinPressEndTick[iPin] != 0 && fingerStateIt->PinPressEndTick[iPin] < note->StartTick - FINGER_PRESS_ANIM_DURATION)
+					{
+						fingerStateIt->PinPressEndTick[iPin] = 0;
+					}
+				}
+			}
 		}
 	}
-
-	return true;
 }
 
-
-bool UStringInstrumentFingeringGraph::CanPlayNote(UNoteConfig *currentConfig, const FStringPosition position, int8 fingerIndex)
+void UStringInstrumentFingeringGraph::CalculateTransitionScores(UGraphNode *parentNode)
 {
-	FFingerState fingerState = currentConfig->FingerStates[fingerIndex];
-	
+	for (auto childNodeIt = parentNode->Children.CreateIterator(); childNodeIt; ++childNodeIt)
+	{
+		TArray<FFingerboardState> possibleTransitions;
+		for (int32 iFingerboardState = 0; iFingerboardState < parentNode->FingerboardStates.Num(); iFingerboardState++)
+		{
+			if (IsTransitionPossible(*childNodeIt, parentNode->FingerboardStates[iFingerboardState]))
+			{
+				possibleTransitions.Add(CreateTransition(*childNodeIt, parentNode->FingerboardStates[iFingerboardState]));
+			}
+		}
+
+		if (possibleTransitions.Num() != 0)
+		{
+			FFingerboardState bestTransition;
+			int32 bestScore = MAXINT32;
+
+			for (int32 iTransition = 0; iTransition < possibleTransitions.Num(); iTransition++)
+			{
+				if (possibleTransitions[iTransition].ParentScore < bestScore)
+				{
+					bestScore = possibleTransitions[iTransition].ParentScore;
+					bestTransition = possibleTransitions[iTransition];
+				}
+			}
+
+			bestTransition.ParentIndex = (*childNodeIt)->Parents.Num();
+			(*childNodeIt)->Parents.Add(parentNode);
+			(*childNodeIt)->FingerboardStates.Add(bestTransition);
+		}	
+	}
+}
+
+bool UStringInstrumentFingeringGraph::IsTransitionPossible(const UGraphNode *node, const FFingerboardState &fingerboardState) const
+{
+	if (node->FingerIndex == -1)
+	{
+		for (int iFingerState = 0; iFingerState < fingerboardState.FingerStates.Num(); iFingerState++)
+		{
+			FFingerState otherFingerState = fingerboardState.FingerStates[iFingerState];
+
+			// If another finger is already pressing this string on a fret different than the required fret
+			if (otherFingerState.IsPinPressing[node->StringPosition.String])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	FFingerState fingerState = fingerboardState.FingerStates[node->FingerIndex];
+
 	// If the finger is already on the correct fret, return true
-	if (fingerState.Fret == position.Fret)
+	if (fingerState.Fret == node->StringPosition.Fret)
 	{
 		return true;
 	}
 
 	// If the finger is not on the correct fret and is currently pressing, return false
-	if (fingerState.Fret != position.Fret && currentConfig->FingerStates[fingerIndex].IsPressing())
+	if (fingerState.Fret != node->StringPosition.Fret && (fingerState.IsPressing() || fingerState.IsTransitioning()))
 	{
 		return false;
 	}
 
-	for (int i = 0, n = currentConfig->FingerStates.Num(); i < n; i++)
+	// Look at other fingers
+	for (int iFingerState = 0; iFingerState < fingerboardState.FingerStates.Num(); iFingerState++)
 	{
+		FFingerState otherFingerState = fingerboardState.FingerStates[iFingerState];
+
+		// If another finger is already pressing this string on a fret different than the required fret
+		if (otherFingerState.IsPinPressing[node->StringPosition.String])
+		{
+			return false;
+		}
+
 		// If a lower index finger is currently pressing between this finger and the target fret
-		if (i < fingerIndex && currentConfig->FingerStates[i].Fret >= position.Fret && currentConfig->FingerStates[i].IsPressing())
+		if (iFingerState < node->FingerIndex && otherFingerState.Fret >= node->StringPosition.Fret && otherFingerState.IsPressing())
 		{
 			return false;
 		}
 
 		// If a higher index finger is currently pressing between this finger and the target fret
-		if (i > fingerIndex && currentConfig->FingerStates[i].Fret <= position.Fret && currentConfig->FingerStates[i].IsPressing())
+		if (iFingerState > node->FingerIndex && otherFingerState.Fret <= node->StringPosition.Fret && otherFingerState.IsPressing())
 		{
 			return false;
 		}
@@ -155,5 +235,72 @@ bool UStringInstrumentFingeringGraph::CanPlayNote(UNoteConfig *currentConfig, co
 	return true;
 }
 
+FFingerboardState UStringInstrumentFingeringGraph::CreateTransition(const UGraphNode *node, const FFingerboardState &fingerboardState)
+{
+	FFingerboardState transitionState;
 
+	for (int iFinger = 0; iFinger < mFingerCount; iFinger++)
+	{
+		FFingerState fingerState;
+		fingerState.Fret = fingerboardState.FingerStates[iFinger].Fret;
+		for (int iString = 0; iString < mStringCount; iString++)
+		{
+			fingerState.IsPinPressing.Add(fingerboardState.FingerStates[iFinger].IsPinPressing[iString]);
+			fingerState.PinPressEndTick.Add(fingerboardState.FingerStates[iFinger].PinPressEndTick[iString]);
+		}
+
+		transitionState.FingerStates.Add(fingerState);
+	}
+
+	if (node->FingerIndex != -1)
+	{
+		transitionState.FingerStates[node->FingerIndex].Fret = node->StringPosition.Fret;
+		transitionState.FingerStates[node->FingerIndex].IsPinPressing[node->StringPosition.String] = true;
+		transitionState.FingerStates[node->FingerIndex].PinPressEndTick[node->StringPosition.String] = node->Note->GetEndTick();
+	}
+	
+	transitionState.ParentScore = GetTransitionScore(node, fingerboardState, transitionState);
+
+	return transitionState;
+}
+
+int32 UStringInstrumentFingeringGraph::GetTransitionScore(const UGraphNode *node, const FFingerboardState &oldState, const FFingerboardState &newState)
+{
+	int32 transitionScore = 0;
+
+	transitionScore += FMath::Max<int8>(0, node->FingerIndex);
+	transitionScore += node->StringPosition.Fret;
+
+	if (node->FingerIndex != -1 && oldState.FingerStates[node->FingerIndex].Fret != 0)
+	{
+		transitionScore += FMath::Abs(oldState.FingerStates[node->FingerIndex].Fret - newState.FingerStates[node->FingerIndex].Fret);
+	}
+
+	return oldState.ParentScore + transitionScore;
+}
+
+void UStringInstrumentFingeringGraph::BuildOptimalFingering(UGraphNode *node)
+{
+	if (node->Note == nullptr) return;
+
+	UGraphNode *bestParent = nullptr;
+	int32 bestScore = MAXINT32;
+
+	for (auto fingerboardStateIt = node->FingerboardStates.CreateIterator(); fingerboardStateIt; ++fingerboardStateIt)
+	{
+		if (fingerboardStateIt->ParentScore < bestScore)
+		{
+			bestScore = fingerboardStateIt->ParentScore;
+			bestParent = node->Parents[fingerboardStateIt->ParentIndex];
+		}
+	}
+
+	BuildOptimalFingering(bestParent);
+
+	node->Parents.Empty();
+	node->Children.Empty();
+	node->FingerboardStates.Empty();
+
+	OptimalFingering.Add(node);
+}
 

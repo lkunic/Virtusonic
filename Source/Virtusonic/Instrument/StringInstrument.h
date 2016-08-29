@@ -50,7 +50,7 @@ public:
 	virtual FString GetStringRoots();
 
 private:
-	FStringPosition GetStringPositionForNote(USongNote *note);
+	FStringPosition GetStringPositionForNote(int32 noteIndex);
 
 	// Audio
 	void GenerateAudioActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);

@@ -44,9 +44,12 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 		mFingeringGraph->AddNote(notes[i], GetPossibleStringPositions(notes[i]->GetPitch()));
 	}
 
+	mFingeringGraph->CalculateFingering();
+
 	for (int i = 0; i < notes.Num(); i++)
 	{
-		position = GetStringPositionForNote(notes[i]);
+		position = GetStringPositionForNote(i);
+		UE_LOG(VirtusonicLog, Log, TEXT("String %d, Fret %d"), position.String, position.Fret);
 
 		// Generate actions for the note
 		GenerateAudioActions(actions, notes[i], position);
@@ -90,10 +93,9 @@ FString AStringInstrument::GetStringRoots()
 /*
  * Calculates the string position for the given note.
  */
-FStringPosition AStringInstrument::GetStringPositionForNote(USongNote *note)
+FStringPosition AStringInstrument::GetStringPositionForNote(int32 noteIndex)
 {
-	// TODO - implement, will probably use DP graph search to find the minimum effort fingering.
-	return GetPossibleStringPositions(note->GetPitch())[0];
+	return mFingeringGraph->OptimalFingering[noteIndex]->StringPosition;
 }
 
 /// AUDIO FUNCTIONS ///

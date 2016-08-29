@@ -35,7 +35,7 @@ struct VIRTUSONIC_API FFingerState
 	UPROPERTY()
 	TArray<int32> PinPressEndTick;
 
-	bool IsPressing()
+	bool IsPressing() const
 	{
 		for (int i = 0; i < IsPinPressing.Num(); i++)
 		{
@@ -44,22 +44,53 @@ struct VIRTUSONIC_API FFingerState
 
 		return false;
 	}
+
+	bool IsTransitioning() const
+	{
+		for (int i = 0; i < PinPressEndTick.Num(); i++)
+		{
+			if (PinPressEndTick[i] != 0) return true;
+		}
+
+		return false;
+	}
+};
+
+USTRUCT()
+struct VIRTUSONIC_API FFingerboardState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int16 ParentIndex;
+
+	UPROPERTY()
+	int32 ParentScore;
+
+	UPROPERTY()
+	TArray<FFingerState> FingerStates;
 };
 
 UCLASS()
-class VIRTUSONIC_API UNoteConfig : public UObject
+class VIRTUSONIC_API UGraphNode : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
-	TArray<FFingerState> FingerStates;
+	FStringPosition StringPosition;
+	int8 FingerIndex;
 
 	UPROPERTY()
-	UNoteConfig *Parent;
+	USongNote *Note;
 
 	UPROPERTY()
-	TArray<UNoteConfig*> Children;
+	TArray<FFingerboardState> FingerboardStates;
+
+	UPROPERTY()
+	TArray<UGraphNode*> Parents;
+
+	UPROPERTY()
+	TArray<UGraphNode*> Children;
 };
 
 /**
@@ -72,20 +103,26 @@ class VIRTUSONIC_API UStringInstrumentFingeringGraph : public UObject
 	
 public:
 	void Init(const int8 fingerCount, const int8 stringCount);
-	void AddNote(USongNote *note, const TArray<FStringPosition> notePositions);
+	void AddNote(USongNote *note, const TArray<FStringPosition> &notePositions);
+	void CalculateFingering();
+
+	UPROPERTY()
+	TArray<UGraphNode*> OptimalFingering;
 	
 private:
-	UNoteConfig* CreateNoteConfig(const UNoteConfig *parentConfig, USongNote *note);
-	void DeleteNoteConfig(UNoteConfig *config);
-
-	bool PositionAvailable(UNoteConfig *currentConfig, const FStringPosition position);
-	bool CanPlayNote(UNoteConfig *currentConfig, const FStringPosition position, int8 fingerIndex);
+	void UpdateFingerboardStates(UGraphNode *node, const USongNote* note);
+	void CalculateTransitionScores(UGraphNode *parentNode);
+	bool IsTransitionPossible(const UGraphNode *node, const FFingerboardState &fingerboardState) const;
+	FFingerboardState CreateTransition(const UGraphNode *node, const FFingerboardState &fingerboardState);
+	int32 GetTransitionScore(const UGraphNode *node, const FFingerboardState &oldState, const FFingerboardState &newState);
+	void BuildOptimalFingering(UGraphNode *node);
 
 	int8 mFingerCount;
+	int8 mStringCount;
 
 	UPROPERTY()
-	UNoteConfig *mRoot;
+	UGraphNode *mRoot;
 
 	UPROPERTY()
-	TArray<UNoteConfig*> mLastLayer;
+	TArray<UGraphNode*> mLastLayer;
 };
