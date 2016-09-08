@@ -24,4 +24,6 @@ public:
 	virtual FString GetPickAnimationPath() override;
 	virtual FString GetStringAnimationPath() override;
 	virtual FString GetStringRoots() override;
+	virtual int8 GetStringCount() override;
+	virtual int8 GetFretCount() override;
 };

@@ -48,6 +48,8 @@ public:
 	virtual FString GetPickAnimationPath();
 	virtual FString GetStringAnimationPath();
 	virtual FString GetStringRoots();
+	virtual int8 GetFretCount();
+	virtual int8 GetStringCount();
 
 private:
 	FStringPosition GetStringPositionForNote(int32 noteIndex);

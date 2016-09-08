@@ -9,6 +9,12 @@
 
 #define FINGER_PRESS_ANIM_DURATION 5
 
+// Scoring constants
+#define EMPTY_STRING_COST 400
+#define FRET_POSITION_FACTOR 6
+#define FRET_DISTANCE_FACTOR 2
+#define FINGER_SPAN_FACTOR 2
+
 USTRUCT()
 struct VIRTUSONIC_API FStringPosition
 {
@@ -37,6 +43,7 @@ struct VIRTUSONIC_API FFingerState
 
 	bool IsPressing() const
 	{
+		// Check if a pin is currently pressing a string
 		for (int i = 0; i < IsPinPressing.Num(); i++)
 		{
 			if (IsPinPressing[i]) return true;
@@ -47,6 +54,8 @@ struct VIRTUSONIC_API FFingerState
 
 	bool IsTransitioning() const
 	{
+		// Check if a pin was recently pressing a string and is now in the transition phase
+		// before it can be used again for pressing a string on a different fret
 		for (int i = 0; i < PinPressEndTick.Num(); i++)
 		{
 			if (PinPressEndTick[i] != 0) return true;
@@ -62,10 +71,13 @@ struct VIRTUSONIC_API FFingerboardState
 	GENERATED_BODY()
 
 	UPROPERTY()
-	int16 ParentIndex;
+	int8 ParentIndex;
 
 	UPROPERTY()
 	int32 ParentScore;
+
+	UPROPERTY()
+	int8 ParentFingerboardStateIndex;
 
 	UPROPERTY()
 	TArray<FFingerState> FingerStates;
@@ -102,7 +114,7 @@ class VIRTUSONIC_API UStringInstrumentFingeringGraph : public UObject
 	GENERATED_BODY()
 	
 public:
-	void Init(const int8 fingerCount, const int8 stringCount);
+	void Init(const int8 fingerCount, const int8 stringCount, const int8 fretCount);
 	void AddNote(USongNote *note, const TArray<FStringPosition> &notePositions);
 	void CalculateFingering();
 
@@ -110,15 +122,19 @@ public:
 	TArray<UGraphNode*> OptimalFingering;
 	
 private:
-	void UpdateFingerboardStates(UGraphNode *node, const USongNote* note);
+	void UpdateFingerboardStates(UGraphNode *node, const int32 tick);
 	void CalculateTransitionScores(UGraphNode *parentNode);
-	bool IsTransitionPossible(const UGraphNode *node, const FFingerboardState &fingerboardState) const;
-	FFingerboardState CreateTransition(const UGraphNode *node, const FFingerboardState &fingerboardState);
+
+	bool CreateTransitionFingerboardState(const UGraphNode *node, const FFingerboardState &fingerboardState, FFingerboardState &outState);
+	int8 GetHighestFretForFinger(const int8 fingerIndex, const FFingerboardState &fingerboardState);
+	int8 GetLowestFretForFinger(const int8 fingerIndex, const FFingerboardState &fingerboardState);
+
 	int32 GetTransitionScore(const UGraphNode *node, const FFingerboardState &oldState, const FFingerboardState &newState);
-	void BuildOptimalFingering(UGraphNode *node);
+	void BuildOptimalFingering(UGraphNode *node, const FFingerboardState &state);
 
 	int8 mFingerCount;
 	int8 mStringCount;
+	int8 mFretCount;
 
 	UPROPERTY()
 	UGraphNode *mRoot;

@@ -79,3 +79,13 @@ FString ABassInstrument::GetStringRoots()
 {
 	return "BEADG";
 }
+
+int8 ABassInstrument::GetFretCount()
+{
+	return 24;
+}
+
+int8 ABassInstrument::GetStringCount()
+{
+	return GetStringRoots().Len();
+}

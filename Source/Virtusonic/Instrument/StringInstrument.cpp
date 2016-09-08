@@ -38,7 +38,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	InitStrings();
 
 	mFingeringGraph = NewObject<UStringInstrumentFingeringGraph>();
-	mFingeringGraph->Init(mFretFingerController->GetFretFingerCount(), GetStringRoots().Len());
+	mFingeringGraph->Init(mFretFingerController->GetFretFingerCount(), GetStringCount(), GetFretCount());
 	for (int i = 0; i < notes.Num(); i++)
 	{
 		mFingeringGraph->AddNote(notes[i], GetPossibleStringPositions(notes[i]->GetPitch()));
@@ -85,7 +85,17 @@ FString AStringInstrument::GetStringAnimationPath()
 
 FString AStringInstrument::GetStringRoots()
 {
-	return "EADGBE";
+	return "";
+}
+
+int8 AStringInstrument::GetFretCount()
+{
+	return 0;
+}
+
+int8 AStringInstrument::GetStringCount()
+{
+	return 0;
 }
 
  /// ///////////////// ///
