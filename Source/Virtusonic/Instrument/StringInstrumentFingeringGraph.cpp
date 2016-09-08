@@ -269,7 +269,7 @@ int32 UStringInstrumentFingeringGraph::GetTransitionScore(const UGraphNode *node
 	int32 transitionScore = 0;
 
 	transitionScore += FMath::Max<int8>(0, node->FingerIndex);
-	transitionScore += node->StringPosition.Fret;
+	transitionScore += FMath::Abs(node->StringPosition.Fret - 6);
 
 	if (node->FingerIndex != -1 && oldState.FingerStates[node->FingerIndex].Fret != 0)
 	{

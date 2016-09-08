@@ -49,7 +49,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	for (int i = 0; i < notes.Num(); i++)
 	{
 		position = GetStringPositionForNote(i);
-		UE_LOG(VirtusonicLog, Log, TEXT("String %d, Fret %d"), position.String, position.Fret);
+		UE_LOG(VirtusonicLog, Log, TEXT("String %d, Fret %d, Finger %d"), position.String, position.Fret, mFingeringGraph->OptimalFingering[i]->FingerIndex + 1);
 
 		// Generate actions for the note
 		GenerateAudioActions(actions, notes[i], position);
