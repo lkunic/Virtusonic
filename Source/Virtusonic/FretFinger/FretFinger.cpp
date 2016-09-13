@@ -3,26 +3,26 @@
 #include "Virtusonic.h"
 #include "FretFinger.h"
 
-
 // Sets default values
 AFretFinger::AFretFinger()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Add a fret finger animator component to the actor
+	mAnimator = CreateDefaultSubobject<UFretFingerAnimator>(TEXT("FretFingerAnimator"));
 }
 
-// Called when the game starts or when spawned
-void AFretFinger::BeginPlay()
+void AFretFinger::Init(int8 stringCount, TArray<float> fretPositions)
 {
-	Super::BeginPlay();
-	
+	mAnimator->Init(stringCount, GetSkeletalMeshComponent());
 }
 
-// Called every frame
-void AFretFinger::Tick( float DeltaTime )
+void AFretFinger::Tick(float deltaSeconds)
 {
-	Super::Tick( DeltaTime );
-
+	mAnimator->Update(deltaSeconds);
 }
 
+UFretFingerAnimator* AFretFinger::GetAnimator()
+{
+	return mAnimator;
+}

@@ -32,7 +32,7 @@ TArray<FStringPosition> ABassInstrument::GetPossibleStringPositions(int8 notePit
 	TArray<FStringPosition> result;
 
 	int32 fretboardRoots[] = { 47, 52, 57, 62, 67 };
-	int32 fretCount = 24;
+	int32 fretCount = GetFretCount();
 
 	for (int32 i = 0; i < 5; i++)
 	{
@@ -54,6 +54,42 @@ TArray<FStringPosition> ABassInstrument::GetPossibleStringPositions(int8 notePit
 	}
 	
 	return result;
+}
+
+/*
+ * Returns a list of fret positions as absolute offsets from the root position of a fret finger.
+ */
+TArray<float> ABassInstrument::GetFretPositions()
+{
+	TArray<float> fretPositions;
+	fretPositions.Reserve(GetFretCount() + 1);
+
+	TArray<UActorComponent*> frets = GetComponentsByTag(UStaticMeshComponent::StaticClass(), TEXT("Frets"));
+
+	for (UActorComponent* fret : frets)
+	{
+		int8 fretNumber = FCString::Atoi(*fret->GetName().Right(2));
+		UStaticMeshComponent* mesh = (UStaticMeshComponent*)fret;
+		FPositionVertexBuffer* buffer = &mesh->StaticMesh->RenderData->LODResources[0].PositionVertexBuffer;
+
+		if (buffer)
+		{
+			float sum = 0;
+			int32 numVertices = buffer->GetNumVertices();
+			for (int32 iVertex = 0; iVertex < numVertices; iVertex++)
+			{
+				sum += buffer->VertexPosition(iVertex).Y;
+			}
+			fretPositions[fretNumber] = sum / numVertices;
+		}
+	}
+
+	for (int i = 0; i < fretPositions.Num(); i++)
+	{
+		fretPositions[i] -= fretPositions.Last();
+	}
+
+	return fretPositions;
 }
 
 /*

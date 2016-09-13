@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Instrument/StringInstrument.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "BassInstrument.generated.h"
 
@@ -21,6 +22,7 @@ public:
 	// Virtual function overrides
 	virtual FString Name() override;
 	virtual TArray<FStringPosition> GetPossibleStringPositions(int8 notePitch) override;
+	virtual TArray<float> GetFretPositions() override;
 	virtual FString GetPickAnimationPath() override;
 	virtual FString GetStringAnimationPath() override;
 	virtual FString GetStringRoots() override;

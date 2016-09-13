@@ -45,6 +45,7 @@ public:
 
 	// These functions should be implemented by derived string instrument classes
 	virtual TArray<FStringPosition> GetPossibleStringPositions(int8 notePitch);
+	virtual TArray<float> GetFretPositions();
 	virtual FString GetPickAnimationPath();
 	virtual FString GetStringAnimationPath();
 	virtual FString GetStringRoots();
@@ -58,6 +59,7 @@ private:
 	void GenerateAudioActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);
 
 	// Fret fingers
+	void InitFretFingers();
 	void GenerateFretFingerActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition);
 
 	// Picks

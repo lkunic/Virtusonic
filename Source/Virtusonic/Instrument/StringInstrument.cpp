@@ -34,7 +34,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 
 	// Initialize the actors (generate the timelines, load animations...)
 	InitPicks();
-	//InitFretFingers();
+	InitFretFingers();
 	InitStrings();
 
 	mFingeringGraph = NewObject<UStringInstrumentFingeringGraph>();
@@ -72,6 +72,12 @@ TArray<FStringPosition> AStringInstrument::GetPossibleStringPositions(int8 noteP
 {
 	return TArray<FStringPosition>();
 }
+
+TArray<float> AStringInstrument::GetFretPositions()
+{
+	return TArray<float>();
+}
+
 
 FString AStringInstrument::GetPickAnimationPath()
 {
@@ -128,6 +134,17 @@ void AStringInstrument::GenerateAudioActions(TArray<UBaseTimelineAction*> &actio
 }
 
 /// FRET FINGER FUNCTIONS ///
+
+void AStringInstrument::InitFretFingers()
+{
+	AFretFinger *fretFinger;
+	
+	for (int i = 0; i < mFretFingerController->GetFretFingerCount(); i++)
+	{
+		fretFinger = mFretFingerController->GetFretFinger(i);
+		fretFinger->Init(GetStringCount(), GetFretPositions());
+	}
+}
 
 void AStringInstrument::GenerateFretFingerActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition)
 {

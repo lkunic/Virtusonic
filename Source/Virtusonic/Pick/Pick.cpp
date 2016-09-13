@@ -9,7 +9,7 @@ APick::APick()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// Add an pick animator component to the actor
+	// Add a pick animator component to the actor
 	mAnimator = CreateDefaultSubobject<UPickAnimator>(TEXT("PickAnimator"));
 }
 
