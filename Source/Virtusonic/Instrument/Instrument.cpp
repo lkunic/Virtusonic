@@ -35,3 +35,17 @@ TArray<UBaseTimelineAction*> AInstrument::GenerateActions(const TArray<USongNote
 	return TArray<UBaseTimelineAction*>();
 }
 
+int32 AInstrument::SecondsToTicks(float seconds)
+{
+	float timePerTick = 60.0f / (mTempo * mTicksPerQuarter);
+	return FMath::CeilToInt(seconds / timePerTick);
+}
+
+float AInstrument::TicksToSeconds(int32 ticks)
+{
+	float timePerTick = 60.0f / (mTempo * mTicksPerQuarter);
+	return ticks * timePerTick;
+}
+
+
+

@@ -28,6 +28,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 {
 	TArray<UBaseTimelineAction*> actions;
 	FStringPosition position;
+	FFingerboardState fingerboardState;
 
 	// A buffer is added to the end of the song so that all animations have time to finish
 	mSongLength = notes.Last()->GetEndTick() + 4 * mTicksPerQuarter;
@@ -49,19 +50,20 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	for (int i = 0; i < notes.Num(); i++)
 	{
 		position = GetStringPositionForNote(i);
+		fingerboardState = GetFingerboardStateForNote(i);
 		UE_LOG(VirtusonicLog, Log, TEXT("String %d, Fret %d, Finger %d"), position.String, position.Fret, mFingeringGraph->OptimalFingering[i]->FingerIndex + 1);
 
 		// Generate actions for the note
 		GenerateAudioActions(actions, notes[i], position);
-		GenerateFretFingerActions(actions, notes[i], position);
+		GenerateFretFingerActions(actions, notes[i], position, fingerboardState);
 		GeneratePickActions(actions, notes[i], position);
 		GenerateStringActions(actions, notes[i], position);
 	}
 
 	// Perform any postprocessing and cleanup on the actors (return to rest positions...)
 	CleanupPicks(actions);
-	// CleanupFretFingers(&actions);
-	// CleanupStrings(&actions);
+	CleanupFretFingers(actions);
+	// CleanupStrings(actions);
 	
 	return actions;
 }
@@ -80,6 +82,11 @@ TArray<float> AStringInstrument::GetFretPositions()
 
 
 FString AStringInstrument::GetPickAnimationPath()
+{
+	return "/Game/Models";
+}
+
+FString AStringInstrument::GetFretFingerAnimationPath()
 {
 	return "/Game/Models";
 }
@@ -107,12 +114,21 @@ int8 AStringInstrument::GetStringCount()
  /// ///////////////// ///
 
 /*
- * Calculates the string position for the given note.
+ * Returns the calculated optimal string position for the given note.
  */
 FStringPosition AStringInstrument::GetStringPositionForNote(int32 noteIndex)
 {
 	return mFingeringGraph->OptimalFingering[noteIndex]->StringPosition;
 }
+
+/*
+ *
+ */
+FFingerboardState AStringInstrument::GetFingerboardStateForNote(int32 noteIndex)
+{
+	return mFingeringGraph->OptimalFingering[noteIndex]->FingerboardStates[0];
+}
+
 
 /// AUDIO FUNCTIONS ///
 
@@ -142,13 +158,80 @@ void AStringInstrument::InitFretFingers()
 	for (int i = 0; i < mFretFingerController->GetFretFingerCount(); i++)
 	{
 		fretFinger = mFretFingerController->GetFretFinger(i);
-		fretFinger->Init(GetStringCount(), GetFretPositions());
+		fretFinger->Init(GetStringCount(), GetFretPositions(), GetStringRoots());
+	}
+
+	UFretFingerAnimator::LoadFretFingerAnimations(GetFretFingerAnimationPath());
+}
+
+void AStringInstrument::CleanupFretFingers(TArray<UBaseTimelineAction*> &actions)
+{
+	AFretFinger *fretFinger;
+	for (int i = 0; i < mFretFingerController->GetFretFingerCount(); i++)
+	{
+		fretFinger = mFretFingerController->GetFretFinger(i);
+		ReturnFretFingerToRest(actions, fretFinger);
 	}
 }
 
-void AStringInstrument::GenerateFretFingerActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition)
+void AStringInstrument::ReturnFretFingerToRest(TArray<UBaseTimelineAction*> &actions, AFretFinger *fretFinger)
 {
 
+}
+
+void AStringInstrument::GenerateFretFingerActions(TArray<UBaseTimelineAction*> &actions, USongNote *note, FStringPosition stringPosition, FFingerboardState fingerboardState)
+{
+	AFretFinger *fretFinger;
+	int8 targetFret;
+
+	for (int iFinger = 0, numFingers = mFretFingerController->GetFretFingerCount(); iFinger < numFingers; iFinger++)
+	{
+		fretFinger = mFretFingerController->GetFretFinger(iFinger);
+		targetFret = fingerboardState.FingerStates[iFinger].Fret;
+		int32 moveDurationTicks;
+
+		if (fretFinger->bIsResting)
+		{
+			UFretFingerPrepareAction *prepareAction = NewObject<UFretFingerPrepareAction>();
+			prepareAction->Init(fretFinger);
+
+			moveDurationTicks = SecondsToTicks(prepareAction->GetAnimationLength()) - iFinger;
+			prepareAction->Tick = note->StartTick - moveDurationTicks;
+			actions.Add(prepareAction);
+
+			fretFinger->bIsResting = false;
+		}
+		else
+		{
+			moveDurationTicks = FMath::Max(note->StartTick - fretFinger->LastNoteTick, SecondsToTicks(0.2f));
+		}
+
+		if (fretFinger->TargetFret != targetFret)
+		{
+			UFretFingerMoveAction *moveAction = NewObject<UFretFingerMoveAction>();
+			moveAction->Init(fretFinger, targetFret, TicksToSeconds(moveDurationTicks));
+			moveAction->Tick = note->StartTick - moveDurationTicks;
+			actions.Add(moveAction);
+			fretFinger->TargetFret = targetFret;
+		}
+
+		if (targetFret == stringPosition.Fret)
+		{
+			float stringPressDuration = 0.2;
+
+			UFretFingerPressAction *pressAction = NewObject<UFretFingerPressAction>();
+			pressAction->Init(fretFinger, stringPosition.String, stringPressDuration);
+			pressAction->Tick = note->StartTick - SecondsToTicks(stringPressDuration);
+			actions.Add(pressAction);
+
+			UFretFingerReleaseAction *releaseAction = NewObject<UFretFingerReleaseAction>();
+			releaseAction->Init(fretFinger, stringPosition.String, stringPressDuration);
+			releaseAction->Tick = note->GetEndTick();
+			actions.Add(releaseAction);
+		}
+
+		fretFinger->LastNoteTick = note->StartTick;
+	}
 }
 
 /// PICK FUNCTIONS ///
@@ -194,7 +277,7 @@ void AStringInstrument::ReturnPickToRest(TArray<UBaseTimelineAction*> &actions, 
 		restAction->Tick = lastPlayTick;
 		actions.Add(restAction);
 
-		int32 restAnimTicks = pick->SequenceLengthInTicks(restAction->GetAnimationLength());
+		int32 restAnimTicks = SecondsToTicks(restAction->GetAnimationLength());
 		pick->UpdateTimeline(lastPlayTick, lastPlayTick + restAnimTicks, 'P');
 		pick->UpdateTimeline(lastPlayTick + restAnimTicks, mSongLength, 'R');
 	}
@@ -241,7 +324,7 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 				UPickPrepareAction *prepareAction = NewObject<UPickPrepareAction>();
 				prepareAction->Init(pick, pick->TimelineStatus(noteTick), stringRoot);
 
-				int32 prepareAnimTicks = pick->SequenceLengthInTicks(prepareAction->GetAnimationLength());
+				int32 prepareAnimTicks = SecondsToTicks(prepareAction->GetAnimationLength());
 				prepareAction->Tick = noteTick - prepareAnimTicks;
 				actions.Add(prepareAction);
 
@@ -254,7 +337,7 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 			playAction->Tick = noteTick;
 			actions.Add(playAction);
 
-			int32 playAnimTicks = pick->SequenceLengthInTicks(playAction->GetAnimationLength());
+			int32 playAnimTicks = SecondsToTicks(playAction->GetAnimationLength());
 			pick->UpdateTimeline(noteTick, noteTick + playAnimTicks, 'P');
 			pick->UpdateTimeline(noteTick + playAnimTicks, mSongLength, stringRoot);
 
@@ -265,7 +348,7 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 	// No suitable candidate was found in the first pass, so the prepare animation needs to be shortened (by increasing the animation rate scale)
 	UPickPrepareAction *prepareAction = NewObject<UPickPrepareAction>();
 	prepareAction->Init(bestPick, bestPick->TimelineStatus(noteTick), stringRoot);
-	prepareAction->SetAnimationRate(bestPick->SequenceLengthInTicks(prepareAction->GetAnimationLength()) / (float)(noteTick - bestTick - 1));
+	prepareAction->SetAnimationRate(SecondsToTicks(prepareAction->GetAnimationLength()) / (float)(noteTick - bestTick - 1));
 
 	prepareAction->Tick = bestTick;
 	actions.Add(prepareAction);
@@ -278,12 +361,12 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 	playAction->Tick = noteTick;
 	actions.Add(playAction);
 
-	int32 playAnimTicks = bestPick->SequenceLengthInTicks(playAction->GetAnimationLength());
+	int32 playAnimTicks = SecondsToTicks(playAction->GetAnimationLength());
 	bestPick->UpdateTimeline(noteTick, noteTick + playAnimTicks, 'P');
 	bestPick->UpdateTimeline(noteTick + playAnimTicks, mSongLength, stringRoot);
 
 	UE_LOG(VirtusonicError, Warning, TEXT("Could not assign note to pick, prepare animation scale set to %.2f"), 
-		bestPick->SequenceLengthInTicks(prepareAction->GetAnimationLength()) / (float)(noteTick - bestTick - 1));
+		SecondsToTicks(prepareAction->GetAnimationLength()) / (float)(noteTick - bestTick - 1));
 }
 
 /// STRING FUNCTIONS ///

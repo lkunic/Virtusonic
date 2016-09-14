@@ -24,6 +24,7 @@ public:
 	virtual TArray<FStringPosition> GetPossibleStringPositions(int8 notePitch) override;
 	virtual TArray<float> GetFretPositions() override;
 	virtual FString GetPickAnimationPath() override;
+	virtual FString GetFretFingerAnimationPath() override;
 	virtual FString GetStringAnimationPath() override;
 	virtual FString GetStringRoots() override;
 	virtual int8 GetStringCount() override;

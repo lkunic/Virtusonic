@@ -16,14 +16,17 @@ class VIRTUSONIC_API AFretFinger : public ASkeletalMeshActor
 public:	
 	AFretFinger();
 
-	void Init(int8 stringCount, TArray<float> fretPositions);
+	void Init(const int8 stringCount, const TArray<float> fretPositions, const FString &stringRoots);
 
 	// The actor tick function that controls all interpolation animations
 	virtual void Tick(float deltaSeconds) override;
 
 	UFretFingerAnimator* GetAnimator();
 
-private:
+	int8 TargetFret;
+	bool bIsResting;
+	int32 LastNoteTick;
 
+private:
 	UFretFingerAnimator *mAnimator;
 };

@@ -12,9 +12,13 @@ AFretFinger::AFretFinger()
 	mAnimator = CreateDefaultSubobject<UFretFingerAnimator>(TEXT("FretFingerAnimator"));
 }
 
-void AFretFinger::Init(int8 stringCount, TArray<float> fretPositions)
+void AFretFinger::Init(const int8 stringCount, const TArray<float> fretPositions, const FString &stringRoots)
 {
-	mAnimator->Init(stringCount, GetSkeletalMeshComponent());
+	mAnimator->Init(stringCount, GetSkeletalMeshComponent(), fretPositions, stringRoots);
+
+	TargetFret = -1;
+	bIsResting = true;
+	LastNoteTick = 0;
 }
 
 void AFretFinger::Tick(float deltaSeconds)
@@ -26,3 +30,6 @@ UFretFingerAnimator* AFretFinger::GetAnimator()
 {
 	return mAnimator;
 }
+
+
+

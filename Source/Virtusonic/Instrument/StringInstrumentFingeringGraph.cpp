@@ -176,7 +176,7 @@ void UStringInstrumentFingeringGraph::UpdateFingerboardStates(UGraphNode *node, 
 					// check if enough time has passed and re-enable it by reseting the end tick time
 					if (fingerStateIt->PinPressEndTick[iPin] != 0 && fingerStateIt->PinPressEndTick[iPin] < tick - FINGER_PRESS_ANIM_DURATION)
 					{
-						fingerStateIt->Fret = MAXINT8;
+						//fingerStateIt->Fret = MAXINT8;
 						fingerStateIt->PinPressEndTick[iPin] = 0;
 					}
 				}
@@ -407,5 +407,13 @@ void UStringInstrumentFingeringGraph::BuildOptimalFingering(UGraphNode *node, co
 	node->FingerboardStates.Add(state);
 
 	OptimalFingering.Add(node);
+
+	// TODO cleanup optimal fingering
+	// Currently, fingers always want to move as a group, bunched up together as much as possible.
+	// This leads to weird jumps (e.g. a finger presses a note on one fret, then tries to move to a higher fret,
+	// only to return to the previous fret immediately and play another note).
+	// This behavior can be cleaned up, either by (1) modifying the fingering algorithm (might or might not work), or
+	// (2) by postprocessing the final optimal path in order to achieve a pleasantly looking fingering.
+	// Solution (2) would allow adding more control over timings for finger movements.
 }
 

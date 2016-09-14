@@ -62,7 +62,7 @@ TArray<FStringPosition> ABassInstrument::GetPossibleStringPositions(int8 notePit
 TArray<float> ABassInstrument::GetFretPositions()
 {
 	TArray<float> fretPositions;
-	fretPositions.Reserve(GetFretCount() + 1);
+	fretPositions.Init(0.0f, GetFretCount() + 1);
 
 	TArray<UActorComponent*> frets = GetComponentsByTag(UStaticMeshComponent::StaticClass(), TEXT("Frets"));
 
@@ -98,6 +98,14 @@ TArray<float> ABassInstrument::GetFretPositions()
 FString ABassInstrument::GetPickAnimationPath()
 {
 	return "/Game/Models/Bass/Pick";
+}
+
+/*
+* Path to the fret finger animations.
+*/
+FString ABassInstrument::GetFretFingerAnimationPath()
+{
+	return "/Game/Models/Bass/FretFinger";
 }
 
 /*

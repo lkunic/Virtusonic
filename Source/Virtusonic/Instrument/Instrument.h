@@ -25,6 +25,9 @@ public:
 	virtual FString Name();
 	virtual TArray<UBaseTimelineAction*> GenerateActions(const TArray<USongNote*> &notes);
 
+	int32 SecondsToTicks(float seconds);
+	float TicksToSeconds(int32 ticks);
+
 protected:
 	int32 mTempo;
 	int32 mTicksPerQuarter;
