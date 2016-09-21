@@ -1,0 +1,99 @@
+# Fixes
+
+## Blender
+
+TODO - Material and shape key changes to StringGeneratorAddon
+- Create three materials: one for the vibrating section of the string, one for the static part that bends, and a placeholder slot for the manually added sections of the string. All materials will be material instances of the same material in Unreal, with a parameter for setting the texture scale. The vibrating section texture will increase in size as a higher fret is pressed, and the static section will decrease in size. The manually added section will have a constant texture size.
+- Change shape keys so that every fret has its own position, but not on the fret itself, but slightly before the fret. Create a few more loops in order for the string to be completely pressend under the finger, and roll over the fret at the start of the vibrating section. Also, include only a single shape key for pressing the string which works on top of the individual fret shape keys.
+
+TODO - Recreate the strings
+- Using the updated string generator, recreate the strings and reimport them into Unreal.
+
+TODO - Update pick animations
+- Increase the footprint of the picking animation so that the pull motion more obviously affects the string.
+- Change the resting positions so that they are closer to the strings, in order to give more time for the pick animation (maybe reduce the frame count for the pick animation to allow faster picking).
+
+TODO - Update the pick and fret finger models
+- Modify the geometry to add more detail and allow prettier texturing.
+
+## Unreal
+
+TODO - Implement string pressing
+- Create a string material with parametrized texture size and create a dynamic material instance for the string sections.
+- Implement string bending similar to how string pressing is implemented. Using an action, set the shape key for the given fret and start the press animation that is executed in the update function. Synchronise with the pin pressing so that the string begins to be pressed as the finger touches it, and ends pressing as soon as the finger is released.
+
+TODO - Import the new pick animations
+- Import the updated pick animations and synchronise them with string vibrations, so that the strings begin moving as the picks touch them.
+
+TODO - Import the improved pick and fret finger models
+- Import the models and create new materials for them
+
+TODO - Record and add new sounds to the strings
+- For each string, record the 12th fret note.
+- Import the new recordings and replace the old placeholder sound.
+
+TODO - Fingering algorithm fixes
+- Implement postprocessing in order to remove unnecessary finger movement. Tweak the parameters to achieve more visually pleasing finger movement.
+
+--------------------------------------------
+
+# New Features
+
+Loading screen
+- Between the startup menu and playing the song. Use to load the environment level, setup the instruments, load the song and calculate all the required actions.
+- The final level is loaded when everything is ready.
+- Smooth blending from the startup menu when starting the loading, and fade out/in or blend when starting the environment level.
+- Show progress? Or spinning loading animation in the corner while playing a simple cinematic?
+
+Startup menu improvements
+- Background cinematic with the menu as overlay.
+
+Dynamic camera
+- Multiple cameras that switch with the music and smoothly follow what is being played.
+- Can be turned off during playtime, enabling free camera movement.
+- Intro fly-in movement when loading a song.
+- When multiple instruments are added, modify so that the camera follows all the instruments at the most interesting times (when an instrument first starts playing, when it plays more notes than others at a certain time).
+
+Multiple environments
+- Concert hall. Improve lighting by reducing the number of lights and replacing them with lower-cost emissive surfaces (model in Blender, apply as material). Increase the brightness at the stage and decrease the audience visibility + decrease the chair model complexity to improve performance.
+- Outdoor scene at day or nighttime (cool reflections, skydomes).
+- Play with camera focal points and blur in order to get better visual look of the environment with reduced model complexity, allowing the instruments to be more detailed and realistic.
+- Different lighting setups.
+
+New songs
+- Try to come up with songs which contain notes on the entire neck, in order to demonstrate the fingering algorithm and animations.
+- Transcriptions for bass sections of popular songs.
+- Songs with chords.
+- Multi-instrument songs.
+
+New string instruments
+- Guitar, ukulele
+- Different models of the same instruments (electric vs acoustic guitar, popular shapes and models).
+
+Fancy note styles
+- Slides.
+- Chord strumming.
+
+Note visualization
+- Create a scrolling note sheet (tablature? note names?) which progresses as the song is played and displays upcoming notes. 
+- Can also have a nice animation when a note is played.
+
+New instrument types
+- Keyboard (piano, synth)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
