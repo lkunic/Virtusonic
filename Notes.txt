@@ -2,39 +2,38 @@
 
 ## Blender
 
-TODO - Material and shape key changes to StringGeneratorAddon
-- Create three materials: one for the vibrating section of the string, one for the static part that bends, and a placeholder slot for the manually added sections of the string. All materials will be material instances of the same material in Unreal, with a parameter for setting the texture scale. The vibrating section texture will increase in size as a higher fret is pressed, and the static section will decrease in size. The manually added section will have a constant texture size.
-- Change shape keys so that every fret has its own position, but not on the fret itself, but slightly before the fret. Create a few more loops in order for the string to be completely pressend under the finger, and roll over the fret at the start of the vibrating section. Also, include only a single shape key for pressing the string which works on top of the individual fret shape keys.
-
-TODO - Recreate the strings
+/////// TODO ///////
+Recreate the strings
 - Using the updated string generator, recreate the strings and reimport them into Unreal.
 
-TODO - Update pick animations
+Update pick animations
 - Increase the footprint of the picking animation so that the pull motion more obviously affects the string.
 - Change the resting positions so that they are closer to the strings, in order to give more time for the pick animation (maybe reduce the frame count for the pick animation to allow faster picking).
 
-TODO - Update the pick and fret finger models
+Update the pick and fret finger models
 - Modify the geometry to add more detail and allow prettier texturing.
+////////////////////
+
 
 ## Unreal
-
-TODO - Implement string pressing
+/////// TODO /////// 
+Implement string pressing
 - Create a string material with parametrized texture size and create a dynamic material instance for the string sections.
-- Implement string bending similar to how string pressing is implemented. Using an action, set the shape key for the given fret and start the press animation that is executed in the update function. Synchronise with the pin pressing so that the string begins to be pressed as the finger touches it, and ends pressing as soon as the finger is released.
+- Implement string bending similar to how fret finger pin pressing is implemented. Using an action, set the shape key for the given fret and start the press animation that is executed in the update function. Synchronise with the pin pressing so that the string begins to be pressed as the finger touches it, and ends pressing as soon as the finger is released.
 
-TODO - Import the new pick animations
+Import the new pick animations
 - Import the updated pick animations and synchronise them with string vibrations, so that the strings begin moving as the picks touch them.
 
-TODO - Import the improved pick and fret finger models
+Import the improved pick and fret finger models
 - Import the models and create new materials for them
 
-TODO - Record and add new sounds to the strings
+Record and add new sounds to the strings
 - For each string, record the 12th fret note.
 - Import the new recordings and replace the old placeholder sound.
 
-TODO - Fingering algorithm fixes
+Fingering algorithm fixes
 - Implement postprocessing in order to remove unnecessary finger movement. Tweak the parameters to achieve more visually pleasing finger movement.
-
+////////////////////
 --------------------------------------------
 
 # New Features
