@@ -39,6 +39,62 @@ void UStringAnimator::LoadStringAnimations(FString assetPath)
 	mStringAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EStringAnimations"), true);
 }
 
+void UStringAnimator::Init(USkeletalMeshComponent *skeletalMesh, const TArray<float> &fretPositions)
+{
+	mSkeletalMesh = skeletalMesh;
+	mFretPositions = fretPositions;
+
+	mStartState = FStringState(fretPositions.Num());
+	mCurrentState = FStringState(fretPositions.Num());
+	mTargetState = FStringState(fretPositions.Num());
+}
+
+void UStringAnimator::Update(float deltaSeconds)
+{
+	if (mCurrentState.PressValue != mTargetState.PressValue)
+	{
+		if (mCurrentState.PressTime < mTargetState.PressTime)
+		{
+			mCurrentState.PressTime += deltaSeconds;
+			float stringPressTime = GetTimeLerp(mCurrentState.PressTime, mTargetState.PressTime);
+
+			mCurrentState.PressValue = mStartState.PressValue + stringPressTime * (mTargetState.PressValue - mStartState.PressValue);
+		}
+		else
+		{
+			mCurrentState.PressValue = mTargetState.PressValue;
+		}
+	}
+
+	mSkeletalMesh->SetMorphTarget("Pressed", mCurrentState.PressValue);
+}
+
+void UStringAnimator::PressString(int8 fret, int32 noteStartTick, float pressDuration)
+{
+	mSkeletalMesh->SetMorphTarget(*GetFretMorphTargetName(mCurrentState.Fret), 0.0f);
+	mSkeletalMesh->SetMorphTarget(*GetFretMorphTargetName(fret), 1.0f);
+
+	mStartState.PressValue = mCurrentState.PressValue;
+	mCurrentState.PressTime = 0.0f;
+	mCurrentState.Fret = fret;
+	mCurrentState.NoteStartTick = noteStartTick;
+
+	mTargetState.PressValue = 1.0f;
+	mTargetState.PressTime = pressDuration;
+}
+
+void UStringAnimator::ReleaseString(int32 noteStartTick, float releaseDuration)
+{
+	if (mCurrentState.NoteStartTick == noteStartTick)
+	{
+		mStartState.PressValue = mCurrentState.PressValue;
+		mCurrentState.PressTime = 0.0f;
+
+		mTargetState.PressValue = 0.0f;
+		mTargetState.PressTime = releaseDuration;
+	}
+}
+
 /*
  * Returns the animation sequence matching the given template.
  */
@@ -59,6 +115,27 @@ FString UStringAnimator::GetAnimationName(EStringAnimations anim, TCHAR X)
 
 	return animName;
 }
+
+float UStringAnimator::GetTimeLerp(float elapsedTime, float duration)
+{
+	float t = elapsedTime / duration;
+	float tt = t * t;
+	return 3 * tt - 2 * tt * t;
+}
+
+FString UStringAnimator::GetFretMorphTargetName(int8 fret)
+{
+	FString morphTargetName = "Fret";
+	if (fret < 10)
+	{
+		morphTargetName.AppendChar('0');
+	}
+
+	morphTargetName.AppendInt(fret);
+
+	return morphTargetName;
+}
+
 
 // Static member declarations
 TMap<FString, UAnimSequence*> UStringAnimator::mStringAnimations;

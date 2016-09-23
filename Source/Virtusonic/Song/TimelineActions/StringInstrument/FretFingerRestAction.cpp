@@ -6,7 +6,7 @@
 void UFretFingerRestAction::Init(AFretFinger *fretFinger)
 {
 	mFretFinger = fretFinger;
-	mAnimation = mFretFinger->GetAnimator()->GetAnimationSequence(EFretFingerAnimation::FretFingerRest);
+	mAnimation = mFretFinger->GetAnimator()->GetAnimationSequence(EFretFingerAnimations::FretFingerRest);
 }
 
 /*
@@ -20,6 +20,7 @@ float UFretFingerRestAction::GetAnimationLength()
 void UFretFingerRestAction::Execute()
 {
 	mFretFinger->GetSkeletalMeshComponent()->PlayAnimation(mAnimation, false);
+	mFretFinger->GetAnimator()->ReturnToRest();
 }
 
 

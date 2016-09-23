@@ -16,7 +16,7 @@ class VIRTUSONIC_API UFretFingerReleaseAction : public UBaseTimelineAction
 	GENERATED_BODY()
 	
 public:
-	void Init(AFretFinger *fretFinger, int8 string, float releaseDuration);
+	void Init(AFretFinger *fretFinger, int8 string, int32 noteStartTick, float releaseDuration);
 
 	virtual void Execute() override;
 
@@ -25,6 +25,6 @@ private:
 	AFretFinger *mFretFinger;
 
 	int8 mString;
-
+	int32 mNoteStartTick;
 	float mReleaseDuration;
 };

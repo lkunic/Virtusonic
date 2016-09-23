@@ -7,10 +7,20 @@
 // Sets default values
 AString::AString()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Add a string animator component to the actor
 	mAnimator = CreateDefaultSubobject<UStringAnimator>(TEXT("StringAnimator"));
+}
+
+void AString::Init(const TArray<float> &fretPositions)
+{
+	mAnimator->Init(GetSkeletalMeshComponent(), fretPositions);
+}
+
+void AString::Tick(float deltaSeconds)
+{
+	mAnimator->Update(deltaSeconds);
 }
 
 UStringAnimator* AString::GetAnimator()

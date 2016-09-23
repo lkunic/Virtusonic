@@ -13,8 +13,12 @@ class VIRTUSONIC_API AString : public ASkeletalMeshActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AString();
+
+	void Init(const TArray<float> &fretPositions);
+
+	// The actor tick function that controls all interpolation animations
+	virtual void Tick(float deltaSeconds) override;
 
 	UStringAnimator* GetAnimator();
 

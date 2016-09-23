@@ -4,6 +4,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+
 #include "FretFingerAnimator.generated.h"
 
 #define DEFAULT_FRET_MOVE_DURATION 1.0f
@@ -11,7 +12,7 @@
 #define DEFAULT_PIN_RELEASE_DURATION 0.8f
 
 UENUM()
-enum class EFretFingerAnimation : uint8
+enum class EFretFingerAnimations : uint8
 {
 	FretFingerPrepare,
 	FretFingerRest
@@ -40,6 +41,9 @@ struct FFretFingerState
 	UPROPERTY()
 	TArray<float> PinPressTimes;
 
+	UPROPERTY()
+	TArray<int32> PinNoteStartTick;
+
 	FFretFingerState(int8 pinCount = 0)
 	{
 		Fret = -1;
@@ -48,6 +52,7 @@ struct FFretFingerState
 		FretboardPositionTime = 0.0f;
 		PinPressValues.Init(0.0f, pinCount);
 		PinPressTimes.Init(0.0f, pinCount);
+		PinNoteStartTick.Init(0, pinCount);
 	}
 };
 
@@ -66,11 +71,11 @@ public:
 	void Update(float deltaSeconds);
 
 	void MoveToFret(int8 fret, float moveDuration = DEFAULT_FRET_MOVE_DURATION);
-	void PressString(int8 string, float pressDuration = DEFAULT_PIN_PRESS_DURATION);
-	void ReleaseString(int8 string, float releaseDuration = DEFAULT_PIN_RELEASE_DURATION);
+	void PressString(int8 string, int32 noteStartTick, float pressDuration = DEFAULT_PIN_PRESS_DURATION);
+	void ReleaseString(int8 string, int32 noteStartTick, float releaseDuration = DEFAULT_PIN_RELEASE_DURATION);
 	void ReturnToRest();
 
-	UAnimSequence* GetAnimationSequence(EFretFingerAnimation anim);
+	UAnimSequence* GetAnimationSequence(EFretFingerAnimations anim);
 
 private:
 	float GetTargetPositionForFret(int8 fret);

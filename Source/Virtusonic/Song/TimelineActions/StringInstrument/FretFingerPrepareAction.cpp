@@ -6,7 +6,7 @@
 void UFretFingerPrepareAction::Init(AFretFinger *fretFinger)
 {
 	mFretFinger = fretFinger;
-	mAnimation = mFretFinger->GetAnimator()->GetAnimationSequence(EFretFingerAnimation::FretFingerPrepare);
+	mAnimation = mFretFinger->GetAnimator()->GetAnimationSequence(EFretFingerAnimations::FretFingerPrepare);
 }
 
 /*

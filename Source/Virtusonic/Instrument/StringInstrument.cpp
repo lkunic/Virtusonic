@@ -51,7 +51,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	{
 		position = GetStringPositionForNote(i);
 		fingerboardState = GetFingerboardStateForNote(i);
-		UE_LOG(VirtusonicLog, Log, TEXT("String %d, Fret %d, Finger %d"), position.String, position.Fret, mFingeringGraph->OptimalFingering[i]->FingerIndex + 1);
+		//UE_LOG(VirtusonicLog, Log, TEXT("String %d, Fret %d, Finger %d"), position.String, position.Fret, mFingeringGraph->OptimalFingering[i]->FingerIndex + 1);
 
 		// Generate actions for the note
 		GenerateAudioActions(actions, notes[i], position);
@@ -63,7 +63,7 @@ TArray<UBaseTimelineAction*> AStringInstrument::GenerateActions(const TArray<USo
 	// Perform any postprocessing and cleanup on the actors (return to rest positions...)
 	CleanupPicks(actions);
 	CleanupFretFingers(actions);
-	// CleanupStrings(actions);
+	//CleanupStrings(actions);
 	
 	return actions;
 }
@@ -167,10 +167,28 @@ void AStringInstrument::InitFretFingers()
 void AStringInstrument::CleanupFretFingers(TArray<UBaseTimelineAction*> &actions)
 {
 	AFretFinger *fretFinger;
-	for (int i = 0; i < mFretFingerController->GetFretFingerCount(); i++)
+	int32 lastTick = 0;
+	int8 fingerCount = mFretFingerController->GetFretFingerCount();
+
+	for (int i = 0; i < fingerCount; i++)
 	{
 		fretFinger = mFretFingerController->GetFretFinger(i);
-		ReturnFretFingerToRest(actions, fretFinger);
+		if (fretFinger->LastNoteTick > lastTick)
+		{
+			lastTick = fretFinger->LastNoteTick;
+		}
+	}
+
+	for (int i = 0; i < fingerCount; i++)
+	{
+		fretFinger = mFretFingerController->GetFretFinger(i);
+		UFretFingerRestAction *restAction = NewObject<UFretFingerRestAction>();
+		restAction->Init(fretFinger);
+
+		restAction->Tick = lastTick + fingerCount - i;
+		actions.Add(restAction);
+
+		fretFinger->bIsResting = true;
 	}
 }
 
@@ -220,17 +238,17 @@ void AStringInstrument::GenerateFretFingerActions(TArray<UBaseTimelineAction*> &
 			float stringPressDuration = 0.2;
 
 			UFretFingerPressAction *pressAction = NewObject<UFretFingerPressAction>();
-			pressAction->Init(fretFinger, stringPosition.String, stringPressDuration);
+			pressAction->Init(fretFinger, stringPosition.String, note->StartTick, stringPressDuration);
 			pressAction->Tick = note->StartTick - SecondsToTicks(stringPressDuration);
 			actions.Add(pressAction);
 
 			UFretFingerReleaseAction *releaseAction = NewObject<UFretFingerReleaseAction>();
-			releaseAction->Init(fretFinger, stringPosition.String, stringPressDuration);
+			releaseAction->Init(fretFinger, stringPosition.String, note->StartTick, stringPressDuration);
 			releaseAction->Tick = note->GetEndTick();
 			actions.Add(releaseAction);
 		}
 
-		fretFinger->LastNoteTick = note->StartTick;
+		fretFinger->LastNoteTick = note->GetEndTick();
 	}
 }
 
@@ -376,6 +394,14 @@ void AStringInstrument::GeneratePickActions(TArray<UBaseTimelineAction*> &action
 */
 void AStringInstrument::InitStrings()
 {
+	AString *string;
+
+	for (int i = 0; i < mStringController->GetStringCount(); i++)
+	{
+		string = mStringController->GetString(i);
+		string->Init(GetFretPositions());
+	}
+
 	UStringAnimator::LoadStringAnimations(GetStringAnimationPath());
 }
 
@@ -383,10 +409,24 @@ void AStringInstrument::GenerateStringActions(TArray<UBaseTimelineAction*> &acti
 {
 	TCHAR stringRoot = GetStringRoots()[stringPosition.String];
 
+	AString *string = mStringController->GetString(stringPosition.String);
+
 	UStringPlayAction *playAction = NewObject<UStringPlayAction>();
-	playAction->Init(mStringController->GetString(stringPosition.String), stringRoot);
+	playAction->Init(string, stringRoot);
 	playAction->Tick = note->GetStartTick();
 	actions.Add(playAction);
+
+	float stringPressDuration = 0.1;
+
+	UStringPressAction *pressAction = NewObject<UStringPressAction>();
+	pressAction->Init(string, stringPosition.Fret, note->StartTick, stringPressDuration);
+	pressAction->Tick = note->StartTick - SecondsToTicks(stringPressDuration);
+	actions.Add(pressAction);
+
+	UStringReleaseAction *releaseAction = NewObject<UStringReleaseAction>();
+	releaseAction->Init(string, note->StartTick, stringPressDuration);
+	releaseAction->Tick = note->GetEndTick();
+	actions.Add(releaseAction);
 }
 
 

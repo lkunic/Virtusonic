@@ -3,9 +3,6 @@
 ## Blender
 
 /////// TODO ///////
-Recreate the strings
-- Using the updated string generator, recreate the strings and reimport them into Unreal.
-
 Update pick animations
 - Increase the footprint of the picking animation so that the pull motion more obviously affects the string.
 - Change the resting positions so that they are closer to the strings, in order to give more time for the pick animation (maybe reduce the frame count for the pick animation to allow faster picking).
@@ -17,9 +14,9 @@ Update the pick and fret finger models
 
 ## Unreal
 /////// TODO /////// 
-Implement string pressing
+Implement string press material change
 - Create a string material with parametrized texture size and create a dynamic material instance for the string sections.
-- Implement string bending similar to how fret finger pin pressing is implemented. Using an action, set the shape key for the given fret and start the press animation that is executed in the update function. Synchronise with the pin pressing so that the string begins to be pressed as the finger touches it, and ends pressing as soon as the finger is released.
+- Implement dynamic material parameter change so that the textures always seem the same size, regardless of the current fret shape key.
 
 Import the new pick animations
 - Import the updated pick animations and synchronise them with string vibrations, so that the strings begin moving as the picks touch them.
@@ -33,6 +30,9 @@ Record and add new sounds to the strings
 
 Fingering algorithm fixes
 - Implement postprocessing in order to remove unnecessary finger movement. Tweak the parameters to achieve more visually pleasing finger movement.
+
+Return to startup menu once the song finishes playing
+- Fade out from the current level and return to the menu
 ////////////////////
 --------------------------------------------
 

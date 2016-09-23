@@ -1,0 +1,58 @@
+# Virtusonic features / design decisions / explanations
+
+MIDI parsing - Song loader
+- midi tracks (one per instrument, instruments dynamically created based on the track names)
+
+Song and song notes
+- notes are read from the midi file, as well as the song tempo, ticks-per-quarter (how fast the song will be played with how many notes inbetween)
+
+Action timeline system
+- All notes in a song track are preprocessed by the corresponding instrument, which creates actions for all components of that instrument (e.g. audio playback, audio stopping, picking, moving stuff)
+- Each action executes at a set tick 
+- During playback, for each tick, all actions at that tick are read from the timeline and executed
+
+Instrument system
+- Each instrument (and instrument type) has a set collection of components and required actions for playing a song on that instrument
+- e.g. string instruments must execute actions for strings, picks, fret fingers and audio playback
+- at start (during the loading phase), for all song tracks, the corresponding instrument is created, and all actions are precalculated for each instrument
+
+Instrument components / controllers / actors / animators
+- Each instrument has a collection of controllers that manage all the required components (pick controller, string controller, ...)
+- This way, the components can be added/removed at will, without any code changes, and the playback will automatically adjust to the new setup
+- All individual components are actors which are spawned on play, and they contain the logic for playing animations, moving the actors, playing sounds and all that good stuff
+- Animations are loaded and managed by the Animator classes, which are actor components attached to those actors
+- Animators also control morph targets for modifying the geometry
+- Actions can either affect the Actors themselves, or their animator components via a public getter
+
+Audio controller
+- Universal for all instruments, plays given sound cues
+
+String instruments:
+Fingering algorithm
+- Tries to determine the correct neck position and finger for each note, by minimizing finger movement and optimizing visual impression of the playback
+- Layered tree structure, each layer has nodes corresponding to all note position / finger combinations, and adjacent layers are fully connected
+- Dynamic search is performed in order to find the minimum cost path from the root of the tree to the last layer, while ruling out impossible transitions between layers
+- The cost is determined by multiple factors, including individual finger movement, finger spread, and built-in favoring of certain positions over others
+Picks - Simulate right hand, string picking and strumming
+- Resting pose -> prepare to get above a string -> pick -> return to rest when no longer needed
+- animator loads all animations and they get referenced and play as needed (naming convention)
+- Choice between picks is determined by the current positions, and favors lower-indexed picks, so that the higher-indexed picks can stay resting if they are not needed to reduce clutter
+Fret fingers - Simulate left hand, fret fingering
+- Resting pose, moving between frets, pressing the pins on strings, modifying the pin spacing based on the current finger position on the neck
+- The animator takes care of loading the animations, controlling the position, and changing the shape key values for pin presses and pin spacing
+- The position and shape keys are altered in the update function which gets called in the unreal tick function
+- Those values have a current and a target state, so at each update the current is changed to smothly transition towards the target based on total elapsed time
+- If the movement is changed during an animation, the target will simply be changed to the new value and the movement will continue in the new direction
+Strings - String vibration and bending
+- String vibration is triggered as an animation
+- String bending is done using a shape key (morph target)
+- string bending requires the geometry to change by a set of shape keys that each correspond to a fret location; this also deforms the textures
+- in order to stop texture deformation, the materials contain a scaling parameter which is dynamically set based on the currently pressed fret
+- the vibrating portion of the string has one material instance, the bending portion is another material instance, both of which are scaled based on the current state
+- the static part of the string has a static material that doesn't change
+
+
+Startup menu
+
+
+

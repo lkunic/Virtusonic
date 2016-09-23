@@ -32,7 +32,7 @@ void UFretFingerAnimator::LoadFretFingerAnimations(FString assetPath)
 	}
 
 	// Load the helper object used for converting enum values to strings
-	mFretFingerAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFretFingerAnimation"), true);
+	mFretFingerAnimationNameEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFretFingerAnimations"), true);
 }
 
 void UFretFingerAnimator::Init(const int8 stringCount, USkeletalMeshComponent *skeletalMesh, const TArray<float> &fretPositions, const FString &stringRoots)
@@ -42,8 +42,7 @@ void UFretFingerAnimator::Init(const int8 stringCount, USkeletalMeshComponent *s
 	mFretPositions = fretPositions;
 	mStringRoots = stringRoots;
 
-	mStartLocation = skeletalMesh->RelativeLocation;
-	
+	mStartLocation = FVector(skeletalMesh->RelativeLocation);
 	mStartState = FFretFingerState(stringCount);
 	mCurrentState = FFretFingerState(stringCount);
 	mTargetState = FFretFingerState(stringCount);
@@ -124,24 +123,28 @@ void UFretFingerAnimator::MoveToFret(int8 fret, float moveDuration)
 	mTargetState.FretboardPositionTime = moveDuration;
 }
 
-void UFretFingerAnimator::PressString(int8 string, float pressDuration)
+void UFretFingerAnimator::PressString(int8 string, int32 noteStartTick, float pressDuration)
 {
 	mStartState.PinPressValues[string] = mCurrentState.PinPressValues[string];
 
 	mCurrentState.PinPressTimes[string] = 0.0f;
+	mCurrentState.PinNoteStartTick[string] = noteStartTick;
 
-	mTargetState.PinPressValues[string] = 1.0f;
+	mTargetState.PinPressValues[string] = 0.6f;
 	mTargetState.PinPressTimes[string] = pressDuration;
 }
 
-void UFretFingerAnimator::ReleaseString(int8 string, float releaseDuration)
+void UFretFingerAnimator::ReleaseString(int8 string, int32 noteStartTick, float releaseDuration)
 {
-	mStartState.PinPressValues[string] = mCurrentState.PinPressValues[string];
+	if (mCurrentState.PinNoteStartTick[string] == noteStartTick)
+	{
+		mStartState.PinPressValues[string] = mCurrentState.PinPressValues[string];
 
-	mCurrentState.PinPressTimes[string] = 0.0f;
+		mCurrentState.PinPressTimes[string] = 0.0f;
 
-	mTargetState.PinPressValues[string] = 0.0f;
-	mTargetState.PinPressTimes[string] = releaseDuration;
+		mTargetState.PinPressValues[string] = 0.0f;
+		mTargetState.PinPressTimes[string] = releaseDuration;
+	}
 }
 
 void UFretFingerAnimator::ReturnToRest()
@@ -151,12 +154,13 @@ void UFretFingerAnimator::ReturnToRest()
 
 	mCurrentState.FretboardPositionTime = 0.0f;
 
+	mTargetState.Fret = -1;
 	mTargetState.FretboardPosition = mStartLocation.Y;
 	mTargetState.PinSpacing = 0.0f;
 	mTargetState.FretboardPositionTime = DEFAULT_FRET_MOVE_DURATION;
 }
 
-UAnimSequence* UFretFingerAnimator::GetAnimationSequence(EFretFingerAnimation anim)
+UAnimSequence* UFretFingerAnimator::GetAnimationSequence(EFretFingerAnimations anim)
 {
 	FString animName = mFretFingerAnimationNameEnum->GetEnumName((int32)anim);
 	return mFretFingerAnimations[animName];
@@ -164,7 +168,7 @@ UAnimSequence* UFretFingerAnimator::GetAnimationSequence(EFretFingerAnimation an
 
 float UFretFingerAnimator::GetTargetPositionForFret(int8 fret)
 {
-	return mFretPositions[fret];
+	return mFretPositions[fret] - 0.2;
 }
 
 float UFretFingerAnimator::GetPinSpacingForFret(int8 fret)
