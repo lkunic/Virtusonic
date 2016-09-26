@@ -5,7 +5,7 @@
 /////// TODO ///////
 Update pick animations
 - Increase the footprint of the picking animation so that the pull motion more obviously affects the string.
-- Change the resting positions so that they are closer to the strings, in order to give more time for the pick animation (maybe reduce the frame count for the pick animation to allow faster picking).
+- Change the prepare positions so that they are closer to the strings, in order to give more time for the pick animation (maybe reduce the frame count for the pick animation to allow faster picking).
 
 Update the pick and fret finger models
 - Modify the geometry to add more detail and allow prettier texturing.
@@ -23,6 +23,9 @@ Import the new pick animations
 
 Import the improved pick and fret finger models
 - Import the models and create new materials for them
+
+Slightly darken the material of the pressing pins to make them more prominent
+- Also includes setting individual materials for each pin
 
 Record and add new sounds to the strings
 - For each string, record the 12th fret note.
@@ -43,6 +46,7 @@ Loading screen
 - The final level is loaded when everything is ready.
 - Smooth blending from the startup menu when starting the loading, and fade out/in or blend when starting the environment level.
 - Show progress? Or spinning loading animation in the corner while playing a simple cinematic?
+- Blend to cinematic, this showcases the environment over ~10 seconds. The cinematic contains a few fadeouts when changing the frames. In the end, do a final fadeout to transition to the actual environment level.
 
 Startup menu improvements
 - Background cinematic with the menu as overlay.
@@ -53,11 +57,19 @@ Dynamic camera
 - Intro fly-in movement when loading a song.
 - When multiple instruments are added, modify so that the camera follows all the instruments at the most interesting times (when an instrument first starts playing, when it plays more notes than others at a certain time).
 
+Streaming levels
+- Make the main playback level (the one with the instruments and camera movement) a streaming level that will overlay on top of the environment level.
+
 Multiple environments
 - Concert hall. Improve lighting by reducing the number of lights and replacing them with lower-cost emissive surfaces (model in Blender, apply as material). Increase the brightness at the stage and decrease the audience visibility + decrease the chair model complexity to improve performance.
 - Outdoor scene at day or nighttime (cool reflections, skydomes).
 - Play with camera focal points and blur in order to get better visual look of the environment with reduced model complexity, allowing the instruments to be more detailed and realistic.
-- Different lighting setups.
+- Different lighting setups - tips:
+	- For interior lights, use IES light profiles to achieve more realism - Lithonia, Phillips
+	- Indirect lighting cache (saves lightmass data for use on movable objects)
+	- Diffuse interreflection (global illumination, AO)
+	- https://docs.unrealengine.com/latest/INT/Engine/Rendering/LightingAndShadows/Lightmass/index.html#gettingthebestqualitywithlightmass
+	- Light shaft on directional light
 
 New songs
 - Try to come up with songs which contain notes on the entire neck, in order to demonstrate the fingering algorithm and animations.
