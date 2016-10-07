@@ -1,19 +1,22 @@
-# Fixes
+Splash intros > Fade into startup menu (first start the current environment intro video blurred, after a few seconds display the menu) > selecting a new environment changes the environment in the background video > selecting a song unblurs the video and starts loading the song (displays the song name large in the middle - fade and slowly increase size) > when the song is loaded, fade out and fade into the environment level > start playing the song > when the song is finished fade out and fade back into the startup menu
+
+--- TODO ------------------------------------
 
 ## Blender
 
-/////// TODO ///////
 Update pick animations
 - Increase the footprint of the picking animation so that the pull motion more obviously affects the string.
 - Change the prepare positions so that they are closer to the strings, in order to give more time for the pick animation (maybe reduce the frame count for the pick animation to allow faster picking).
 
 Update the pick and fret finger models
 - Modify the geometry to add more detail and allow prettier texturing.
-////////////////////
+
+Update the accessory models
+- Increase level of detail using normal maps and ao
 
 
 ## Unreal
-/////// TODO /////// 
+
 Implement string press material change
 - Create a string material with parametrized texture size and create a dynamic material instance for the string sections.
 - Implement dynamic material parameter change so that the textures always seem the same size, regardless of the current fret shape key.
@@ -24,8 +27,11 @@ Import the new pick animations
 Import the improved pick and fret finger models
 - Import the models and create new materials for them
 
-Slightly darken the material of the pressing pins to make them more prominent
-- Also includes setting individual materials for each pin
+Material improvements
+- Add more detail to various parts, especially metal (smears, fingerprints)
+- **Slightly darken the material of the pressing pins to make them more prominent 
+	- Separate material channels for each pin?
+	- Blending mask that controls which part of the pick to darken using distinct colors?
 
 Record and add new sounds to the strings
 - For each string, record the 12th fret note.
@@ -36,20 +42,29 @@ Fingering algorithm fixes
 
 Return to startup menu once the song finishes playing
 - Fade out from the current level and return to the menu
-////////////////////
---------------------------------------------
 
-# New Features
 
-Loading screen
+--- New features ------------------------------------
+
+Loading screen 1
 - Between the startup menu and playing the song. Use to load the environment level, setup the instruments, load the song and calculate all the required actions.
 - The final level is loaded when everything is ready.
 - Smooth blending from the startup menu when starting the loading, and fade out/in or blend when starting the environment level.
 - Show progress? Or spinning loading animation in the corner while playing a simple cinematic?
 - Blend to cinematic, this showcases the environment over ~10 seconds. The cinematic contains a few fadeouts when changing the frames. In the end, do a final fadeout to transition to the actual environment level.
 
-Startup menu improvements
-- Background cinematic with the menu as overlay.
+Loading screen 2
+- In the startup menu, enable choosing the environment in advance and loop a very blured version of the environment introduction video in the background
+- When a song is selected, remove all menu elements, fade-unblur the video (cloud texture), and start loading the song and the environment level while playing the full video sequence
+- Once the song and level are loaded, fade out, fade in with the song level, and begin playback
+
+Pause menu
+- Pause the playback, allow entering tick mode 
+- Restart song
+- Return to menu
+
+Tick mode
+- Pause the playback and allow manual tick progression
 
 Dynamic camera
 - Multiple cameras that switch with the music and smoothly follow what is being played.
@@ -60,10 +75,17 @@ Dynamic camera
 Streaming levels
 - Make the main playback level (the one with the instruments and camera movement) a streaming level that will overlay on top of the environment level.
 
+Startup menu improvements
+- Add environment choices to the startup menu
+- Change the layout and behavior, include custom graphics and icons
+- Add options - note visualization, camera movement, keyboard controls
+
 Multiple environments
-- Concert hall. Improve lighting by reducing the number of lights and replacing them with lower-cost emissive surfaces (model in Blender, apply as material). Increase the brightness at the stage and decrease the audience visibility + decrease the chair model complexity to improve performance.
+- Concert hall. Improve lighting by reducing the number of lights and replacing them with lower-cost emissive surfaces (model in Blender, apply as material). Increase the brightness at the stage and decrease the audience visibility + decrease the chair model complexity to improve performance. Add a curtain with an opening animation for the intro cinematic.
 - Outdoor scene at day or nighttime (cool reflections, skydomes).
-- Play with camera focal points and blur in order to get better visual look of the environment with reduced model complexity, allowing the instruments to be more detailed and realistic.
+- Play with post-processing (dof, bloom) in order to get better visual look of the environment with reduced model complexity, allowing the instruments to be more detailed and realistic.
+- Big rock concert stage, green nature field with trees, beach stage
+- Create short intro videos showcasing the environment
 - Different lighting setups - tips:
 	- For interior lights, use IES light profiles to achieve more realism - Lithonia, Phillips
 	- Indirect lighting cache (saves lightmass data for use on movable objects)
