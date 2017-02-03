@@ -17,9 +17,8 @@ void UStringPlayAction::Init(AString *string, TCHAR stringRoot)
 */
 void UStringPlayAction::Execute()
 {
-	mString->GetSkeletalMeshComponent()->Stop();
-	mString->GetSkeletalMeshComponent()->PlayAnimation(mAnimation, false);
-	//UE_LOG(VirtusonicLog, Log, TEXT("Playing string %s"), *(_string->GetName()));
+	mString->GetAnimator()->PlayStringVibration(mAnimation);
+	//UE_LOG(VirtusonicLog, Log, TEXT("Playing %s"), *(mString->GetName()));
 }
 
 

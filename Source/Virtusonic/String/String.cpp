@@ -20,7 +20,8 @@ void AString::Init(const TArray<float> &fretPositions)
 
 void AString::Tick(float deltaSeconds)
 {
-	mAnimator->Update(deltaSeconds);
+	Super::Tick(deltaSeconds);
+	//mAnimator->Update(deltaSeconds);
 }
 
 UStringAnimator* AString::GetAnimator()

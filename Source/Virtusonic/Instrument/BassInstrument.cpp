@@ -70,7 +70,7 @@ TArray<float> ABassInstrument::GetFretPositions()
 	{
 		int8 fretNumber = FCString::Atoi(*fret->GetName().Right(2));
 		UStaticMeshComponent* mesh = (UStaticMeshComponent*)fret;
-		FPositionVertexBuffer* buffer = &mesh->StaticMesh->RenderData->LODResources[0].PositionVertexBuffer;
+		FPositionVertexBuffer* buffer = &mesh->GetStaticMesh()->RenderData->LODResources[0].PositionVertexBuffer;
 
 		if (buffer)
 		{

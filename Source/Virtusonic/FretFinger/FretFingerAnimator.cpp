@@ -6,7 +6,6 @@
 // Sets default values for this component's properties
 UFretFingerAnimator::UFretFingerAnimator()
 {
-	bWantsBeginPlay = false;
 	PrimaryComponentTick.bCanEverTick = false;
 }
 

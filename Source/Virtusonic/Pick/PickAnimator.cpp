@@ -6,7 +6,6 @@
 // Sets default values for this component's properties
 UPickAnimator::UPickAnimator()
 {
-	bWantsBeginPlay = false;
 	PrimaryComponentTick.bCanEverTick = false;
 }
 

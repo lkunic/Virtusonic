@@ -16,7 +16,7 @@ class VIRTUSONIC_API UStringReleaseAction : public UBaseTimelineAction
 	GENERATED_BODY()
 	
 public:
-	void Init(AString *string, int32 noteStartTick, float releaseDuration);
+	void Init(AString *string, int8 fret, int32 noteStartTick, float releaseDuration);
 
 	virtual void Execute() override;
 
@@ -24,6 +24,7 @@ private:
 	UPROPERTY()
 	AString *mString;
 
+	int8 mFret;
 	int32 mNoteStartTick;
 	float mReleaseDuration;
 };

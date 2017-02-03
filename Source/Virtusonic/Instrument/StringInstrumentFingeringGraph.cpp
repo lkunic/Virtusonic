@@ -28,7 +28,7 @@ void UStringInstrumentFingeringGraph::Init(const int8 fingerCount, const int8 st
 	for (int iFinger = 0; iFinger < mFingerCount; iFinger++)
 	{
 		FFingerState fingerState;
-		fingerState.Fret = MAXINT8;
+		fingerState.Fret = MAX_int8;
 		for (int iString = 0; iString < mStringCount; iString++)
 		{
 			fingerState.IsPinPressing.Add(false);
@@ -129,7 +129,7 @@ void UStringInstrumentFingeringGraph::CalculateFingering()
 	// Find the node with the lowest score in the last graph
 	UGraphNode *bestNode = nullptr;
 	FFingerboardState bestFingerboardState;
-	int32 bestScore = MAXINT32;
+	int32 bestScore = MAX_int32;
 
 	for (UGraphNode *endNode : mLastLayer)
 	{
@@ -206,7 +206,7 @@ void UStringInstrumentFingeringGraph::CalculateTransitionScores(UGraphNode *pare
 		{
 			// Iterate through the possible transitions to find the best one and set is as the child's predecessor
 			FFingerboardState bestTransition;
-			int32 bestScore = MAXINT32;
+			int32 bestScore = MAX_int32;
 
 			for (int32 iTransition = 0; iTransition < possibleNewStates.Num(); iTransition++)
 			{
@@ -382,7 +382,7 @@ int32 UStringInstrumentFingeringGraph::GetTransitionScore(const UGraphNode *node
 	// Total distance traveled by all fingers and extra cost for pressing/lifting pins
 	for (int8 iFinger = 0; iFinger < oldState.FingerStates.Num(); iFinger++)
 	{
-		if (oldState.FingerStates[iFinger].Fret == MAXINT8) continue;
+		if (oldState.FingerStates[iFinger].Fret == MAX_int8) continue;
 		transitionScore += FRET_DISTANCE_FACTOR * FMath::Abs(oldState.FingerStates[iFinger].Fret - newState.FingerStates[iFinger].Fret);
 	}
 

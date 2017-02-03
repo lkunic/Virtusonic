@@ -10,17 +10,14 @@ ASongController::ASongController()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void ASongController::BeginPlay()
+void ASongController::LoadSong()
 {
-	Super::BeginPlay();
-
 	if (SongName.IsEmpty())
 	{
 		SongName = "CMajor";
 	}
 	UE_LOG(VirtusonicLog, Log, TEXT("Loading song: %s.mid"), *SongName);
-	
+
 	// Loads the MIDI file containing the song from the content folder
 	mSong = NewObject<USong>();
 	mSong->AddToRoot();

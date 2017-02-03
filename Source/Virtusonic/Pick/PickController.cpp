@@ -7,7 +7,6 @@
 // Sets default values for this component's properties
 UPickController::UPickController()
 {
-	bWantsBeginPlay = false;
 	PrimaryComponentTick.bCanEverTick = false;
 }
 

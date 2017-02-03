@@ -17,8 +17,8 @@ public:
 	// Sets default values for this actor's properties
 	ASongController();
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, Category = "Song")
+	void LoadSong();
 
 	// This function is periodically called by the blueprint timer
 	UFUNCTION(BlueprintCallable, Category = "Song")

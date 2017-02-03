@@ -235,7 +235,7 @@ void AStringInstrument::GenerateFretFingerActions(TArray<UBaseTimelineAction*> &
 
 		if (targetFret == stringPosition.Fret)
 		{
-			float stringPressDuration = 0.2;
+			float stringPressDuration = 0.1;
 
 			UFretFingerPressAction *pressAction = NewObject<UFretFingerPressAction>();
 			pressAction->Init(fretFinger, stringPosition.String, note->StartTick, stringPressDuration);
@@ -288,7 +288,7 @@ void AStringInstrument::CleanupPicks(TArray<UBaseTimelineAction*> &actions)
 void AStringInstrument::ReturnPickToRest(TArray<UBaseTimelineAction*> &actions, APick *pick)
 {
 	int32 lastPlayTick = pick->GetLastPlayTick();
-	if (lastPlayTick != 0 && pick->TimelineStatus(lastPlayTick) != 'R')
+	if (lastPlayTick > 0 && pick->TimelineStatus(lastPlayTick) != 'R')
 	{
 		UPickRestAction *restAction = NewObject<UPickRestAction>();
 		restAction->Init(pick, pick->TimelineStatus(lastPlayTick));
@@ -416,7 +416,7 @@ void AStringInstrument::GenerateStringActions(TArray<UBaseTimelineAction*> &acti
 	playAction->Tick = note->GetStartTick();
 	actions.Add(playAction);
 
-	float stringPressDuration = 0.1;
+	float stringPressDuration = 0.2;
 
 	UStringPressAction *pressAction = NewObject<UStringPressAction>();
 	pressAction->Init(string, stringPosition.Fret, note->StartTick, stringPressDuration);
@@ -424,7 +424,7 @@ void AStringInstrument::GenerateStringActions(TArray<UBaseTimelineAction*> &acti
 	actions.Add(pressAction);
 
 	UStringReleaseAction *releaseAction = NewObject<UStringReleaseAction>();
-	releaseAction->Init(string, note->StartTick, stringPressDuration);
+	releaseAction->Init(string, stringPosition.Fret, note->StartTick, stringPressDuration);
 	releaseAction->Tick = note->GetEndTick();
 	actions.Add(releaseAction);
 }

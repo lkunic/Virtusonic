@@ -7,8 +7,8 @@
 // Sets default values for this component's properties
 UStringAnimator::UStringAnimator()
 {
-	bWantsBeginPlay = false;
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
 }
 
 /*
@@ -49,32 +49,50 @@ void UStringAnimator::Init(USkeletalMeshComponent *skeletalMesh, const TArray<fl
 	mTargetState = FStringState(fretPositions.Num());
 }
 
-void UStringAnimator::Update(float deltaSeconds)
+void UStringAnimator::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	if (mCurrentState.PressValue != mTargetState.PressValue)
 	{
-		if (mCurrentState.PressTime < mTargetState.PressTime)
-		{
-			mCurrentState.PressTime += deltaSeconds;
-			float stringPressTime = GetTimeLerp(mCurrentState.PressTime, mTargetState.PressTime);
+		//UE_LOG(VirtusonicLog, Log, TEXT("CT: %.3f, TT: %.3f, CV: %.3f, TV: %.3f"), mCurrentState.PressTime, mTargetState.PressTime, mCurrentState.PressValue, mTargetState.PressValue);
+		mCurrentState.PressTime += DeltaTime;
+		float stringPressTime = GetTimeLerp(mCurrentState.PressTime, mTargetState.PressTime);
 
-			mCurrentState.PressValue = mStartState.PressValue + stringPressTime * (mTargetState.PressValue - mStartState.PressValue);
-		}
-		else
+		mCurrentState.PressValue = mStartState.PressValue + stringPressTime * (mTargetState.PressValue - mStartState.PressValue);
+	}
+	
+	//UE_LOG(VirtusonicLog, Log, TEXT("Setting fret%d to %.3f"), mCurrentState.Fret, mCurrentState.PressValue);
+	if (mCurrentState.Fret != -1)
+	{
+		mSkeletalMesh->SetMorphTarget(*GetFretMorphTargetName(mCurrentState.Fret), mCurrentState.PressValue, false);
+	}
+	if (mCurrentState.PreviousFret != -1)
+	{
+		mSkeletalMesh->SetMorphTarget(*GetFretMorphTargetName(mCurrentState.PreviousFret), 1.0f - mCurrentState.PressValue, false);
+
+		if (FMath::IsNearlyEqual(mCurrentState.PressValue, 1.0f))
 		{
-			mCurrentState.PressValue = mTargetState.PressValue;
+			mCurrentState.PreviousFret = -1;
 		}
 	}
 
-	mSkeletalMesh->SetMorphTarget("Pressed", mCurrentState.PressValue);
+	mSkeletalMesh->SetMorphTarget("Pressed", mCurrentState.PressValue, false);
 }
 
 void UStringAnimator::PressString(int8 fret, int32 noteStartTick, float pressDuration)
 {
-	mSkeletalMesh->SetMorphTarget(*GetFretMorphTargetName(mCurrentState.Fret), 0.0f);
-	mSkeletalMesh->SetMorphTarget(*GetFretMorphTargetName(fret), 1.0f);
+	//UE_LOG(VirtusonicLog, Log, TEXT("Pressing: %d"), fret);
 
-	mStartState.PressValue = mCurrentState.PressValue;
+	if (FMath::IsNearlyEqual(mCurrentState.PressValue, 0.0f))
+	{
+		mStartState.PressValue = 0.0f;
+	}
+	else if (mCurrentState.Fret != fret)
+	{
+		mStartState.PressValue = 1.0f - mCurrentState.PressValue;
+		mCurrentState.PressValue = mStartState.PressValue;
+		mCurrentState.PreviousFret = mCurrentState.Fret;
+	}
+
 	mCurrentState.PressTime = 0.0f;
 	mCurrentState.Fret = fret;
 	mCurrentState.NoteStartTick = noteStartTick;
@@ -83,16 +101,30 @@ void UStringAnimator::PressString(int8 fret, int32 noteStartTick, float pressDur
 	mTargetState.PressTime = pressDuration;
 }
 
-void UStringAnimator::ReleaseString(int32 noteStartTick, float releaseDuration)
+void UStringAnimator::ReleaseString(int8 fret, int32 noteStartTick, float releaseDuration)
 {
-	if (mCurrentState.NoteStartTick == noteStartTick)
+	//UE_LOG(VirtusonicLog, Log, TEXT("Releasing: %d"), fret);
+	if (mCurrentState.Fret == fret && mCurrentState.NoteStartTick == noteStartTick)
 	{
+		mSkeletalMesh->Stop();
+
+		//UE_LOG(VirtusonicLog, Log, TEXT("Executing release"));
 		mStartState.PressValue = mCurrentState.PressValue;
 		mCurrentState.PressTime = 0.0f;
 
 		mTargetState.PressValue = 0.0f;
 		mTargetState.PressTime = releaseDuration;
 	}
+}
+
+void UStringAnimator::PlayStringVibration(UAnimSequence *vibrationAnimationSequence)
+{
+	if (mSkeletalMesh->IsPlaying())
+	{
+		mSkeletalMesh->Stop();
+	}
+
+	mSkeletalMesh->PlayAnimation(vibrationAnimationSequence, false);
 }
 
 /*
@@ -118,7 +150,7 @@ FString UStringAnimator::GetAnimationName(EStringAnimations anim, TCHAR X)
 
 float UStringAnimator::GetTimeLerp(float elapsedTime, float duration)
 {
-	float t = elapsedTime / duration;
+	float t = FMath::Min(1.0f, elapsedTime / duration);
 	float tt = t * t;
 	return 3 * tt - 2 * tt * t;
 }
@@ -131,7 +163,7 @@ FString UStringAnimator::GetFretMorphTargetName(int8 fret)
 		morphTargetName.AppendChar('0');
 	}
 
-	morphTargetName.AppendInt(fret);
+	morphTargetName.AppendInt((int32)fret);
 
 	return morphTargetName;
 }

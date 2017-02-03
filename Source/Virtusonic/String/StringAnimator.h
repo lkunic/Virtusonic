@@ -29,6 +29,9 @@ struct FStringState
 	int8 Fret;
 
 	UPROPERTY()
+	int8 PreviousFret;
+
+	UPROPERTY()
 	int32 NoteStartTick;
 
 	UPROPERTY()
@@ -39,6 +42,7 @@ struct FStringState
 
 	FStringState(int8 fretCount = 0)
 	{
+		PreviousFret = -1;
 		Fret = -1;
 		PressValue = 0.0;
 		PressTime = 0.0;
@@ -58,13 +62,14 @@ public:
 	static void LoadStringAnimations(FString assetPath);
 
 	void Init(USkeletalMeshComponent *skeletalMesh, const TArray<float> &fretPositions);
-	void Update(float deltaSeconds);
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	void PressString(int8 fret, int32 noteStartTick, float pressDuration = DEFAULT_STRING_PRESS_DURATION);
-	void ReleaseString(int32 noteStartTick, float releaseDuration = DEFAULT_STRING_RELEASE_DURATION);
+	void ReleaseString(int8 fret, int32 noteStartTick, float releaseDuration = DEFAULT_STRING_RELEASE_DURATION);
+	void PlayStringVibration(UAnimSequence *vibrationAnimationSequence);
 
 	// Returns the animation sequence matching the given template
-	UAnimSequence* GetAnimationSequence(EStringAnimations anim, TCHAR X = '0');
+	UAnimSequence *GetAnimationSequence(EStringAnimations anim, TCHAR X = '0');
 
 private:
 	// Helper function for assembling the animation name using the given parameters
