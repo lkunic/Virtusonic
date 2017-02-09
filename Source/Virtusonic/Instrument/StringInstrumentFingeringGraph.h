@@ -131,6 +131,7 @@ private:
 
 	int32 GetTransitionScore(const UGraphNode *node, const FFingerboardState &oldState, const FFingerboardState &newState);
 	void BuildOptimalFingering(UGraphNode *node, const FFingerboardState &state);
+	bool CleanupFingerMovement(const int32 noteIndex, const int8 fingerIndex, const int8 lastPressedFret);
 
 	int8 mFingerCount;
 	int8 mStringCount;

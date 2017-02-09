@@ -147,6 +147,11 @@ void UStringInstrumentFingeringGraph::CalculateFingering()
 	// Backtrack through the graph from the best node in order to build the optimal fingering sequence
 	BuildOptimalFingering(bestNode, bestFingerboardState);
 
+	for (int iFinger = 0; iFinger < mFingerCount; iFinger++)
+	{
+		CleanupFingerMovement(0, iFinger, -1);
+	}
+
 	// Enable garbage collection on the private members
 	mRoot = nullptr;
 	mLastLayer.Empty();
@@ -282,13 +287,13 @@ bool UStringInstrumentFingeringGraph::CreateTransitionFingerboardState(const UGr
 		}
 		for (int iFinger = node->FingerIndex + 1; iFinger < outState.FingerStates.Num(); iFinger++)
 		{
-			int8 highestFret = GetLowestFretForFinger(iFinger, outState);
-			if (highestFret == -1)
+			int8 lowestFret = GetLowestFretForFinger(iFinger, outState);
+			if (lowestFret == -1)
 			{
 				return false;
 			}
 
-			outState.FingerStates[iFinger].Fret = highestFret;
+			outState.FingerStates[iFinger].Fret = lowestFret;
 		}	
 
 	}
@@ -407,13 +412,63 @@ void UStringInstrumentFingeringGraph::BuildOptimalFingering(UGraphNode *node, co
 	node->FingerboardStates.Add(state);
 
 	OptimalFingering.Add(node);
-
-	// TODO cleanup optimal fingering
-	// Currently, fingers always want to move as a group, bunched up together as much as possible.
-	// This leads to weird jumps (e.g. a finger presses a note on one fret, then tries to move to a higher fret,
-	// only to return to the previous fret immediately and play another note).
-	// This behavior can be cleaned up, either by (1) modifying the fingering algorithm (might or might not work), or
-	// (2) by postprocessing the final optimal path in order to achieve a pleasantly looking fingering.
-	// Solution (2) would allow adding more control over timings for finger movements.
 }
 
+bool UStringInstrumentFingeringGraph::CleanupFingerMovement(const int32 noteIndex, const int8 fingerIndex, const int8 lastPressedFret)
+{
+	// Check if we've reached the end of the recursion
+	if (noteIndex >= OptimalFingering.Num())
+	{
+		return false;
+	}
+
+	// This value determines whether the finger plays two same notes in a row (in which case it should stay at the same 
+	// fret without moving inbetween), and whether the movement graph should be 'flattened', which means that all movement
+	// that might happen between those two values should be removed.
+	bool shouldFlatten;
+	if (OptimalFingering[noteIndex]->FingerIndex == fingerIndex)
+	{
+		// This finger presses a note, so update the currently pressed fret for the recursion and go down one step
+		shouldFlatten = CleanupFingerMovement(noteIndex + 1, fingerIndex, OptimalFingering[noteIndex]->StringPosition.Fret);
+	}
+	else
+	{
+		// The finger doesn't press a note, so the last pressed fret is still the same, continue with the recursion
+		shouldFlatten = CleanupFingerMovement(noteIndex + 1, fingerIndex, lastPressedFret);
+	}
+
+	if (OptimalFingering[noteIndex]->FingerIndex != fingerIndex)
+	{
+		// This note isn't played by this finger, use the received value to flatten the finger movement if required
+		if (shouldFlatten)
+		{
+			if (GetHighestFretForFinger(fingerIndex, OptimalFingering[noteIndex]->FingerboardStates[0]) >= lastPressedFret &&
+				GetLowestFretForFinger(fingerIndex, OptimalFingering[noteIndex]->FingerboardStates[0]) <= lastPressedFret)
+			{
+				OptimalFingering[noteIndex]->FingerboardStates[0].FingerStates[fingerIndex].Fret = lastPressedFret;
+			}
+
+			//OptimalFingering[noteIndex]->FingerboardStates[0].FingerStates[fingerIndex].Fret = lastPressedFret;
+		}
+
+		return shouldFlatten;
+	}
+	else
+	{
+		// The note is played by this finger. If the fret to be pressed is the same as the previous fret,
+		// return true so that any movement between playing those two notes can be removed
+		if (OptimalFingering[noteIndex]->StringPosition.Fret == lastPressedFret)
+		{
+			return true;
+		}
+
+		if (lastPressedFret != -1 && noteIndex > 0 && 
+			OptimalFingering[noteIndex - 1]->StringPosition.Fret != OptimalFingering[noteIndex]->StringPosition.Fret &&
+			OptimalFingering[noteIndex - 1]->StringPosition.Fret != lastPressedFret)
+		{
+			return true;
+		}
+
+		return false;
+	}
+}
