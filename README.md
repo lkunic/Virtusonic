@@ -1,2 +1,2 @@
 # Virtusonic
-Virtusonic UE4 project
+Self playing virtual guitar using MIDI files as input.
