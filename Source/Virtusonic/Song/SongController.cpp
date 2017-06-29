@@ -61,6 +61,8 @@ void ASongController::GenerateTimelines()
 			mSong->GenerateTimeline(mInstruments[i]);
 		}
 	}
+
+	mSong->GenerateControlTimeline(GetWorld()->GetGameState<AVirtusonicGameState>());
 }
 
 /*

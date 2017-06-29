@@ -105,6 +105,28 @@ void USong::GenerateTimeline(AInstrument* instrument)
 	timeline->AddActions(instrument->GenerateActions(track.Notes));
 	timeline->SortByTick();
 
+	int32 lastTimelineTick = timeline->GetLastTick();
+	if (mLastTick < lastTimelineTick)
+	{
+		mLastTick = lastTimelineTick;
+	}
+
+	mTimelines.Add(timeline);
+}
+
+void USong::GenerateControlTimeline(AVirtusonicGameState* gameState)
+{
+	USongTimeline* timeline = NewObject<USongTimeline>();
+
+	TArray<UBaseTimelineAction*> actions;
+
+	USongFinishedAction *songFinishedAction = NewObject<USongFinishedAction>();
+	songFinishedAction->Init(gameState);
+	songFinishedAction->Tick = mLastTick + 32;
+	actions.Add(songFinishedAction);
+
+	timeline->AddActions(actions);
+
 	mTimelines.Add(timeline);
 }
 

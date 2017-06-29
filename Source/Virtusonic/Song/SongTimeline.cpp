@@ -20,6 +20,14 @@ void USongTimeline::SortByTick()
 }
 
 /*
+* Returns the last tick on the timeline.
+*/
+int32 USongTimeline::GetLastTick()
+{
+	return mActionTimeline.Last()->Tick;
+}
+
+/*
  * Returns the list of actions at the given tick.
  */
 TArray<UBaseTimelineAction*> USongTimeline::GetActionsAtTick(int32 tick)

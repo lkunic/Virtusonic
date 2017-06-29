@@ -6,6 +6,8 @@
 #include "SongNote.h"
 #include "SongTimeline.h"
 #include "Instrument/Instrument.h"
+#include "Song/TimelineActions/General/SongFinishedAction.h"
+#include "VirtusonicGameState.h"
 
 #include "Song.generated.h"
 
@@ -51,6 +53,7 @@ public:
 	void StartNote(int32 startTick, int32 pitch, int32 velocity);
 	void EndNote(FString trackName, int32 endTick, int32 pitch, int32 velocity);
 	void GenerateTimeline(AInstrument* instrument);
+	void GenerateControlTimeline(AVirtusonicGameState* gameState);
 
 	TArray<FString> TrackNames();
 	TArray<UBaseTimelineAction*> GetTimelineActions(int32 tick);
@@ -65,6 +68,7 @@ private:
 	int32 mTicksPerQuarter;
 	TMap<FString, FSongTrack> mTracks;
 	TArray<USongNote*> mStartedNotes;
+	int32 mLastTick = 0;
 
 	UPROPERTY()
 	TArray<USongTimeline*> mTimelines;

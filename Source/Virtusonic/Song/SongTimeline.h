@@ -28,6 +28,7 @@ public:
 	void AddActions(const TArray<UBaseTimelineAction*> &actions);
 	void SortByTick();
 
+	int32 GetLastTick();
 	TArray<UBaseTimelineAction*> GetActionsAtTick(int32 tick);
 
 private:
